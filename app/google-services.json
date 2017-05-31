@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "163457113213",
+    "firebase_url": "https://d-care.firebaseio.com",
+    "project_id": "d-care",
+    "storage_bucket": "d-care.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:163457113213:android:b0f76b039d381a15",
+        "android_client_info": {
+          "package_name": "com.example.mayankaggarwal.dcare"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "163457113213-2tfp4m7dg4hu66php3evr1liv4sq2l5r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZhpd320d36_-6tl5rTG73csiRqM7Ys1U"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
