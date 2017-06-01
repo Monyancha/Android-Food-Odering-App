@@ -1,5 +1,6 @@
 package com.example.mayankaggarwal.dcare.activities;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -20,8 +21,10 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.mayankaggarwal.dcare.Details;
 import com.example.mayankaggarwal.dcare.R;
 import com.example.mayankaggarwal.dcare.rest.Data;
+import com.example.mayankaggarwal.dcare.utils.Globals;
 
 public class VerifyOtp extends AppCompatActivity {
 
@@ -31,11 +34,13 @@ public class VerifyOtp extends AppCompatActivity {
     CheckBox tc;
     Boolean checked=false;
     CharSequence otp;
+    ProgressDialog sendProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_verify_otp);
+        sendProgress=new ProgressDialog(this);
         initalize();
     }
 
@@ -65,6 +70,7 @@ public class VerifyOtp extends AppCompatActivity {
         verfiy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("tagg","working");
                 sendOtp(otp);
             }
         });
@@ -74,13 +80,12 @@ public class VerifyOtp extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
+                    checked=true;
                     if(otp!=null && otp.length()>1){
-                        checked=true;
                         verfiy.setBackgroundResource(R.drawable.round_shape_border_blue);
                         verfiy.setEnabled(true);
                         verfiy.setTextColor(Color.parseColor("#00bcd4"));
                     }else {
-                        checked=false;
                         verfiy.setEnabled(false);
                         verfiy.setBackgroundResource(R.drawable.round_shape_border_grey);
                         verfiy.setTextColor(Color.parseColor("#d2d2d2"));
@@ -142,15 +147,18 @@ public class VerifyOtp extends AppCompatActivity {
     }
 
     private void sendOtp(CharSequence otp) {
+        Globals.showProgressDialog(sendProgress, "OTP", "Verfying...");
         Data.sendOTP(otp.toString(), this, new Data.UpdateCallback() {
             @Override
             public void onUpdate() {
-
+                Globals.hideProgressDialog(sendProgress);
+                finishAffinity();
+                startActivity(new Intent(VerifyOtp.this, Details.class));
             }
-
             @Override
             public void onFailure() {
-
+                Globals.hideProgressDialog(sendProgress);
+                Globals.showFailAlert(VerifyOtp.this, "Error Verifying OTP");
             }
         });
     }

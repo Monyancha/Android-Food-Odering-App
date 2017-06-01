@@ -2,14 +2,17 @@ package com.example.mayankaggarwal.dcare.activities;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -21,6 +24,7 @@ import android.widget.TextView;
 import com.example.mayankaggarwal.dcare.R;
 import com.example.mayankaggarwal.dcare.rest.Data;
 import com.example.mayankaggarwal.dcare.utils.Globals;
+import com.example.mayankaggarwal.dcare.utils.Prefs;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 public class OtpActivity extends AppCompatActivity {
@@ -46,12 +50,15 @@ public class OtpActivity extends AppCompatActivity {
     }
 
     private void initalize() {
+
         callBootingUp();
-        hideKeyboard(findViewById(R.id.linearlayout));
+
         mobileedit = (EditText) findViewById(R.id.mobileedittext);
         getotpbutton = (Button) findViewById(R.id.getotpbutton);
         mobiletext = (TextView) findViewById(R.id.mobiletext);
         countryCode = (TextView) findViewById(R.id.countrycode);
+
+        hideKeyboard(findViewById(R.id.linearlayout));
 
 
         if (getIntent() != null) {
@@ -59,8 +66,12 @@ public class OtpActivity extends AppCompatActivity {
             String code = getIntent().getStringExtra("code");
             if (number != null && code != null) {
                 countryCode.setText(Globals.getCountryFlag(code) + " (" + code + ") +" + number + "▾");
+                Prefs.setPrefs("country_code", code, this);
+                Prefs.setPrefs("country_number", number, this);
             } else {
                 countryCode.setText(Globals.getCountryFlag("IN") + " (IN) +91 ▾");
+                Prefs.setPrefs("country_code", "IN", this);
+                Prefs.setPrefs("country_number", "91", this);
             }
         } else {
             countryCode.setText(Globals.getCountryFlag("IN") + " (IN) +91 ▾");
@@ -115,11 +126,9 @@ public class OtpActivity extends AppCompatActivity {
         getotpbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getIntent() != null) {
-                    String code = getIntent().getStringExtra("number");
-                    if (code != null) {
-                        getOTP(mobileNumber, code);
-                    }
+                String code = getIntent().getStringExtra("number");
+                if (code != null) {
+                    getOTP(mobileNumber, code);
                 } else {
                     getOTP(mobileNumber, "91");
                 }
@@ -128,13 +137,13 @@ public class OtpActivity extends AppCompatActivity {
 
     }
 
-    private void getOTP(String mobileNumber, String countryCode) {
+    private void getOTP(final String mobileNumber, String countryCode) {
         Globals.showProgressDialog(otpProgress, "OTP", "Fetching...");
         Data.getOTP(mobileNumber, countryCode, this, new Data.UpdateCallback() {
             @Override
             public void onUpdate() {
                 Globals.hideProgressDialog(otpProgress);
-//                Log.d("tagg","success otp");
+                Prefs.setPrefs("user_mobile", mobileNumber, OtpActivity.this);
                 (OtpActivity.this).startActivity(new Intent(OtpActivity.this, VerifyOtp.class));
             }
 
@@ -147,18 +156,28 @@ public class OtpActivity extends AppCompatActivity {
     }
 
     private void callBootingUp() {
+        progress.setCancelable(false);
         progress.show();
         Data.bootup(this, new Data.UpdateCallback() {
             @Override
             public void onUpdate() {
                 progress.hide();
+                getotpbutton.setEnabled(true);
             }
 
             @Override
             public void onFailure() {
                 progress.hide();
-                Globals.showFailAlert(OtpActivity.this, "Error Booting");
-                finish();
+                getotpbutton.setEnabled(false);
+                new AlertDialog.Builder(OtpActivity.this)
+                        .setTitle("Error Booting")
+                        .setMessage(Globals.errorRes).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        finish();
+                    }
+                }).show();
             }
         });
     }

@@ -48,6 +48,7 @@ public class Globals {
     }
 
     public static void showProgressDialog(ProgressDialog dialog, String title, String message){
+        dialog.setCancelable(false);
         dialog.setTitle(title);
         dialog.setMessage(message);
         dialog.show();
@@ -58,7 +59,7 @@ public class Globals {
     }
 
     public static void showFailAlert(Activity activity, String title){
-        AlertDialog dialog=new AlertDialog.Builder(activity)
+        new AlertDialog.Builder(activity)
                 .setTitle(title)
                 .setMessage(Globals.errorRes).setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override

@@ -3,7 +3,6 @@ package com.example.mayankaggarwal.dcare.rest;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.provider.Settings;
-import android.util.Log;
 
 import com.example.mayankaggarwal.dcare.models.BootupRequest;
 import com.example.mayankaggarwal.dcare.models.BootupResponse;
@@ -13,11 +12,13 @@ import com.example.mayankaggarwal.dcare.models.OtpPayload;
 import com.example.mayankaggarwal.dcare.models.OtpRequest;
 import com.example.mayankaggarwal.dcare.models.OtpResponse;
 import com.example.mayankaggarwal.dcare.models.Payload;
+import com.example.mayankaggarwal.dcare.models.VerifyHeader;
+import com.example.mayankaggarwal.dcare.models.VerifyOtpRequest;
+import com.example.mayankaggarwal.dcare.models.VerifyPayload;
+import com.example.mayankaggarwal.dcare.models.VerifyResponse;
 import com.example.mayankaggarwal.dcare.utils.Globals;
 import com.example.mayankaggarwal.dcare.utils.Prefs;
 import com.google.firebase.iid.FirebaseInstanceId;
-
-
 import retrofit2.Call;
 
 /**
@@ -31,13 +32,13 @@ public class Data {
         bootup.execute(activity);
     }
 
-    public static void getOTP(final String mobileNumber,final String countryCode,final Activity activity, final UpdateCallback updateCallback) {
-        GetOtp getOtp = new GetOtp(updateCallback,mobileNumber,countryCode);
+    public static void getOTP(final String mobileNumber, final String countryCode, final Activity activity, final UpdateCallback updateCallback) {
+        GetOtp getOtp = new GetOtp(updateCallback, mobileNumber, countryCode);
         getOtp.execute(activity);
     }
 
-    public static void sendOTP(final String mobileNumber,final Activity activity, final UpdateCallback updateCallback) {
-        SendOtp sendOtp = new SendOtp(updateCallback,mobileNumber);
+    public static void sendOTP(final String otp, final Activity activity, final UpdateCallback updateCallback) {
+        SendOtp sendOtp = new SendOtp(updateCallback, otp);
         sendOtp.execute(activity);
     }
 
@@ -65,34 +66,34 @@ public class Data {
             BootupRequest bootupRequest = new BootupRequest();
             String android_id = Settings.Secure.getString(activity.getContentResolver(), Settings.Secure.ANDROID_ID);
 
-            Payload payload=new Payload();
+            Payload payload = new Payload();
             payload.deviceid = String.valueOf(android_id);
             payload.osType = Globals.appOS;
             payload.fcmToken = FirebaseInstanceId.getInstance().getToken();
 //            payload.fcmToken="";
-            bootupRequest.payload=payload;
+            bootupRequest.payload = payload;
 
-            Header header=new Header();
+            Header header = new Header();
             header.requestId = Globals.randomAlphaNumeric(10);
             header.appVersion = Globals.appVersion;
-            if(!(Prefs.getPrefs("crewid",activity).equals("notfound"))){
-                header.crewId=Prefs.getPrefs("crewid",activity);
-            }else {
+            if (!(Prefs.getPrefs("crewid", activity).equals("notfound"))) {
+                header.crewId = Prefs.getPrefs("crewid", activity);
+            } else {
                 header.crewId = "";
             }
             header.wprToken = "";
-            bootupRequest.header=header;
+            bootupRequest.header = header;
 
             final Call<BootupResponse> bootupRes = apiInterface.bootup(bootupRequest);
 
             try {
                 BootupResponse bootupResponse = bootupRes.execute().body();
                 if (bootupResponse.success) {
-                    Prefs.setPrefs("wpr_token",bootupResponse.payload.wprToken,activity);
-                    Prefs.setPrefs("crewid",bootupResponse.payload.crewid,activity);
-                    Prefs.setPrefs("shift_refresh_frequency_rate",bootupResponse.payload.shiftRefreshFrequencyRate,activity);
-                    Prefs.setPrefs("local_shift_refresh_frequency_rate",bootupResponse.payload.localShiftRefreshFrequencyRate,activity);
-                    Prefs.setPrefs("location_refresh_frequency_rate",bootupResponse.payload.locationRefreshFrequencyRate,activity);
+                    Prefs.setPrefs("wpr_token", bootupResponse.payload.wprToken, activity);
+                    Prefs.setPrefs("crewid", bootupResponse.payload.crewid, activity);
+                    Prefs.setPrefs("shift_refresh_frequency_rate", bootupResponse.payload.shiftRefreshFrequencyRate, activity);
+                    Prefs.setPrefs("local_shift_refresh_frequency_rate", bootupResponse.payload.localShiftRefreshFrequencyRate, activity);
+                    Prefs.setPrefs("location_refresh_frequency_rate", bootupResponse.payload.locationRefreshFrequencyRate, activity);
                     error = 0;
                 } else {
                     Globals.errorRes = bootupResponse.error.message;
@@ -100,7 +101,7 @@ public class Data {
                 }
             } catch (Exception e) {
                 error = 1;
-                Globals.errorRes="No Internet Connection!";
+                Globals.errorRes = "No Internet Connection!";
                 e.printStackTrace();
             }
             return 0;
@@ -123,10 +124,10 @@ public class Data {
         String countryCode;
         int error = 0;
 
-        GetOtp(UpdateCallback updateCallback,String mobileNumber,String countryCode) {
+        GetOtp(UpdateCallback updateCallback, String mobileNumber, String countryCode) {
             this.updateCallback = updateCallback;
-            this.mobileNumber=mobileNumber;
-            this.countryCode=countryCode;
+            this.mobileNumber = mobileNumber;
+            this.countryCode = countryCode;
         }
 
         @Override
@@ -136,24 +137,24 @@ public class Data {
             ApiInterface apiInterface = new ApiClient().getClient(activity).create(ApiInterface.class);
             OtpRequest otpRequest = new OtpRequest();
 
-            OtpPayload payload=new OtpPayload();
+            OtpPayload payload = new OtpPayload();
             payload.source = "mb";
             payload.rMobile = this.mobileNumber;
-            payload.timestampOfRequest = String.valueOf((int)System.currentTimeMillis()/1000);
+            payload.timestampOfRequest = String.valueOf((int) System.currentTimeMillis() / 1000);
             payload.requestFlag = 0;
-            payload.country_code=this.countryCode;
-            otpRequest.payload=payload;
+            payload.country_code = this.countryCode;
+            otpRequest.payload = payload;
 
-            OtpHeader header=new OtpHeader();
+            OtpHeader header = new OtpHeader();
             header.requesID = Globals.randomAlphaNumeric(10);
             header.appVersion = Globals.appVersion;
-            if(!(Prefs.getPrefs("crewid",activity).equals("notfound"))){
-                header.user_id=Prefs.getPrefs("crewid",activity);
+            if (!(Prefs.getPrefs("crewid", activity).equals("notfound"))) {
+                header.user_id = Prefs.getPrefs("crewid", activity);
             }
-            if(!(Prefs.getPrefs("wpr_token",activity).equals("notfound"))){
-                header.wprToken=Prefs.getPrefs("wpr_token",activity);
+            if (!(Prefs.getPrefs("wpr_token", activity).equals("notfound"))) {
+                header.wprToken = Prefs.getPrefs("wpr_token", activity);
             }
-            otpRequest.header=header;
+            otpRequest.header = header;
 
             final Call<OtpResponse> otpResponseCall = apiInterface.generateotp(otpRequest);
 
@@ -167,7 +168,7 @@ public class Data {
                 }
             } catch (Exception e) {
                 error = 1;
-                Globals.errorRes="No Internet Connection!";
+                Globals.errorRes = "No Internet Connection!";
                 e.printStackTrace();
             }
             return 0;
@@ -182,18 +183,17 @@ public class Data {
             }
         }
     }
-
 
 
     public static class SendOtp extends AsyncTask<Activity, Void, Integer> {
 
         UpdateCallback updateCallback;
-        String mobileNumber;
+        String otp;
         int error = 0;
 
-        SendOtp(UpdateCallback updateCallback,String mobileNumber) {
+        SendOtp(UpdateCallback updateCallback, String otp) {
             this.updateCallback = updateCallback;
-            this.mobileNumber=mobileNumber;
+            this.otp = otp;
         }
 
         @Override
@@ -201,40 +201,51 @@ public class Data {
             final Activity activity = params[0];
 
             ApiInterface apiInterface = new ApiClient().getClient(activity).create(ApiInterface.class);
-            OtpRequest otpRequest = new OtpRequest();
+            VerifyOtpRequest verifyOtpRequest = new VerifyOtpRequest();
 
-            OtpPayload payload=new OtpPayload();
+            VerifyPayload payload = new VerifyPayload();
             payload.source = "mb";
-            payload.rMobile = this.mobileNumber;
-            payload.timestampOfRequest = String.valueOf((int)System.currentTimeMillis()/1000);
-            payload.requestFlag = 0;
-//            payload.country_code=this.countryCode;
-            otpRequest.payload=payload;
+            if(!(Prefs.getPrefs("user_mobile",activity).equals("notfound"))){
+                payload.rMobile = Prefs.getPrefs("user_mobile",activity);
+            }else {
+                payload.rMobile = "";
+            }
+            payload.timestampOfRequest = String.valueOf((int) System.currentTimeMillis() / 1000);
+            if(!(Prefs.getPrefs("country_number",activity).equals("notfound"))){
+                payload.countryCode = Prefs.getPrefs("country_number",activity);
+            }else {
+                payload.countryCode="91";
+            }
+            payload.otp=otp;
+            verifyOtpRequest.payload = payload;
 
-            OtpHeader header=new OtpHeader();
-            header.requesID = Globals.randomAlphaNumeric(10);
+            VerifyHeader header = new VerifyHeader();
+            header.requestID = Globals.randomAlphaNumeric(10);
             header.appVersion = Globals.appVersion;
-            if(!(Prefs.getPrefs("crewid",activity).equals("notfound"))){
-                header.user_id=Prefs.getPrefs("crewid",activity);
+            if (!(Prefs.getPrefs("crewid", activity).equals("notfound"))) {
+                header.userId = Prefs.getPrefs("crewid", activity);
             }
-            if(!(Prefs.getPrefs("wpr_token",activity).equals("notfound"))){
-                header.wprToken=Prefs.getPrefs("wpr_token",activity);
+            if (!(Prefs.getPrefs("crewid", activity).equals("notfound"))) {
+                header.crewId = Prefs.getPrefs("crewid", activity);
             }
-            otpRequest.header=header;
+            if (!(Prefs.getPrefs("wpr_token", activity).equals("notfound"))) {
+                header.wprToken = Prefs.getPrefs("wpr_token", activity);
+            }
+            verifyOtpRequest.header = header;
 
-            final Call<OtpResponse> otpResponseCall = apiInterface.generateotp(otpRequest);
+            final Call<VerifyResponse> verifyResponseCall = apiInterface.verifymobile(verifyOtpRequest);
 
             try {
-                OtpResponse otpResponse = otpResponseCall.execute().body();
-                if (otpResponse.success) {
+                VerifyResponse verifyResponse = verifyResponseCall.execute().body();
+                if (verifyResponse.success) {
                     error = 0;
                 } else {
-                    Globals.errorRes = otpResponse.error.message;
+                    Globals.errorRes = verifyResponse.error.message;
                     error = 1;
                 }
             } catch (Exception e) {
                 error = 1;
-                Globals.errorRes="No Internet Connection!";
+                Globals.errorRes = "No Internet Connection!";
                 e.printStackTrace();
             }
             return 0;
@@ -249,8 +260,6 @@ public class Data {
             }
         }
     }
-
-
 
 
     public static class InternetConnection extends AsyncTask<Void, Void, Boolean> {

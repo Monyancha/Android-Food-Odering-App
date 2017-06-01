@@ -5,6 +5,8 @@ import com.example.mayankaggarwal.dcare.models.BootupRequest;
 import com.example.mayankaggarwal.dcare.models.BootupResponse;
 import com.example.mayankaggarwal.dcare.models.OtpRequest;
 import com.example.mayankaggarwal.dcare.models.OtpResponse;
+import com.example.mayankaggarwal.dcare.models.VerifyOtpRequest;
+import com.example.mayankaggarwal.dcare.models.VerifyResponse;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -23,7 +25,7 @@ public interface ApiInterface {
     Call<OtpResponse> generateotp(@Body OtpRequest otpRequest);
 
     @POST("verifymobile")
-    Call<OtpResponse> verifymobile(@Body OtpRequest otpRequest);
+    Call<VerifyResponse> verifymobile(@Body VerifyOtpRequest verifyOtpRequest);
 
 
 //    @GET("faculties.json")
