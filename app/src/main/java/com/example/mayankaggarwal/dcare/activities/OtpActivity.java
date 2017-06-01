@@ -144,7 +144,8 @@ public class OtpActivity extends AppCompatActivity {
             public void onUpdate() {
                 Globals.hideProgressDialog(otpProgress);
                 Prefs.setPrefs("user_mobile", mobileNumber, OtpActivity.this);
-                (OtpActivity.this).startActivity(new Intent(OtpActivity.this, VerifyOtp.class));
+                finish();
+                startActivity(new Intent(OtpActivity.this, VerifyOtp.class));
             }
 
             @Override

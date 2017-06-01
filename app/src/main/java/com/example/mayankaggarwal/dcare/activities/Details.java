@@ -1,7 +1,9 @@
-package com.example.mayankaggarwal.dcare;
+package com.example.mayankaggarwal.dcare.activities;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import com.example.mayankaggarwal.dcare.R;
 
 public class Details extends AppCompatActivity {
 

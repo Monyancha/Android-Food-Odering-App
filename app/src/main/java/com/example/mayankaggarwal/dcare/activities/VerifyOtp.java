@@ -21,7 +21,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.example.mayankaggarwal.dcare.Details;
 import com.example.mayankaggarwal.dcare.R;
 import com.example.mayankaggarwal.dcare.rest.Data;
 import com.example.mayankaggarwal.dcare.utils.Globals;

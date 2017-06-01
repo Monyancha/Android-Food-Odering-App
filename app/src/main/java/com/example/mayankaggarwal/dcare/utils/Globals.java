@@ -61,6 +61,7 @@ public class Globals {
     public static void showFailAlert(Activity activity, String title){
         new AlertDialog.Builder(activity)
                 .setTitle(title)
+                .setCancelable(false)
                 .setMessage(Globals.errorRes).setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
