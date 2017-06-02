@@ -81,8 +81,9 @@ public class OtpActivity extends AppCompatActivity {
         countryCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(OtpActivity.this, SearchCountry.class));
+//                startActivity(new Intent(OtpActivity.this, SearchCountry.class));
 //                CustomProgressDialog.showProgress(OtpActivity.this);
+                startActivity(new Intent(OtpActivity.this, MainActivity.class));
             }
         });
 
