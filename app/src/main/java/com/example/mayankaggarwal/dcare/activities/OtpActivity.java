@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.example.mayankaggarwal.dcare.R;
 import com.example.mayankaggarwal.dcare.rest.Data;
+import com.example.mayankaggarwal.dcare.utils.CustomProgressDialog;
 import com.example.mayankaggarwal.dcare.utils.Globals;
 import com.example.mayankaggarwal.dcare.utils.Prefs;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -81,6 +82,7 @@ public class OtpActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(OtpActivity.this, SearchCountry.class));
+//                CustomProgressDialog.showProgress(OtpActivity.this);
             }
         });
 

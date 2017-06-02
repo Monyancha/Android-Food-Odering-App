@@ -62,14 +62,13 @@ public class VerifyOtp extends AppCompatActivity {
             public void onClick(View v) {
                 back.setBackgroundResource(R.drawable.round_shape_border_blue);
                 back.setTextColor(Color.parseColor("#00bcd4"));
-                (VerifyOtp.this).startActivity(new Intent(VerifyOtp.this, OtpActivity.class));
+                startActivity(new Intent(VerifyOtp.this, OtpActivity.class));
             }
         });
         
         verfiy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("tagg","working");
                 sendOtp(otp);
             }
         });

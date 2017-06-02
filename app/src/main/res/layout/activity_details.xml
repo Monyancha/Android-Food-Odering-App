@@ -170,6 +170,26 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
+            android:visibility="gone"
+            android:id="@+id/mobileincorrect"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="0.90"
+                android:gravity="center"
+                android:text="Mobile number is incorrect"
+                android:textColor="@color/themered"
+                android:paddingLeft="10dp"
+                android:textSize="13dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
             android:gravity="center"
             android:orientation="horizontal"
@@ -201,6 +221,26 @@
                 android:layout_weight="0.90"
                 android:background="@drawable/round_shape_solid_grey"
                 android:gravity="center"
+                android:paddingLeft="10dp"
+                android:textSize="13dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:gravity="center"
+            android:id="@+id/emailincorrect"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="0.90"
+                android:gravity="center"
+                android:text="Email is incorrect"
+                android:textColor="@color/themered"
                 android:paddingLeft="10dp"
                 android:textSize="13dp" />
         </LinearLayout>
@@ -281,11 +321,32 @@
                 android:textSize="13dp" />
 
             <ImageView
+                android:id="@+id/datepicker"
                 android:layout_width="0dp"
                 android:layout_height="30dp"
                 android:layout_weight="0.1"
-                android:id="@+id/datepicker"
                 android:src="@drawable/calendar" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:visibility="gone"
+            android:id="@+id/dateincorrect"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="0.90"
+                android:gravity="center"
+                android:paddingLeft="10dp"
+                android:text="Date is incorrect"
+                android:textColor="@color/themered"
+                android:textSize="13dp" />
         </LinearLayout>
 
 
@@ -327,9 +388,9 @@
                 android:textSize="13dp" />
 
             <ImageView
-                android:id="@+id/imageView3"
                 android:layout_width="0dp"
                 android:layout_height="30dp"
+                android:id="@+id/uploadsymbolone"
                 android:layout_weight="0.1"
                 android:src="@drawable/upload" />
         </LinearLayout>
@@ -389,6 +450,7 @@
             <ImageView
                 android:layout_width="0dp"
                 android:layout_height="30dp"
+                android:id="@+id/uploadsymboltwo"
                 android:layout_weight="0.1"
                 android:src="@drawable/upload" />
 
@@ -420,7 +482,6 @@
                 android:layout_weight="0.70"
                 android:layout_height="40dp"
                 android:text="PROCEED"
-                android:enabled="false"
                 android:textSize="20dp"
                 android:id="@+id/proceed"
                 android:textColor="@color/themegrey"
@@ -440,7 +501,6 @@
                 android:layout_weight="0.70"
                 android:layout_height="40dp"
                 android:text="BACK"
-                android:enabled="false"
                 android:textSize="20dp"
                 android:id="@+id/backpage"
                 android:textColor="@color/themegrey"

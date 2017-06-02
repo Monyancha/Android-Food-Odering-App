@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 
+import com.example.mayankaggarwal.dcare.R;
 import com.example.mayankaggarwal.dcare.activities.OtpActivity;
 import com.example.mayankaggarwal.dcare.rest.Data;
 
