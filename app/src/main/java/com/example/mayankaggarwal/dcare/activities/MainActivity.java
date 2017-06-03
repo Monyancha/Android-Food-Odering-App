@@ -1,42 +1,39 @@
 package com.example.mayankaggarwal.dcare.activities;
 
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.content.res.AppCompatResources;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.Display;
-import android.view.MotionEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.mayankaggarwal.dcare.R;
+import com.example.mayankaggarwal.dcare.fragments.NotificationFragment;
+import com.example.mayankaggarwal.dcare.fragments.OrderFragment;
+import com.example.mayankaggarwal.dcare.fragments.ReportFragment;
+import com.example.mayankaggarwal.dcare.fragments.ShiftFragment;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     TextView toolbarText;
-    Button startShift,laterShift;
-    FloatingActionButton shift,order,report,notification;
+    FloatingActionButton shift, order, report, notification;
+    Fragment fragment = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +42,7 @@ public class MainActivity extends AppCompatActivity
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         initialize();
-        setListener();
         setBottomBar();
-
     }
 
     private void initialize() {
@@ -58,7 +53,7 @@ public class MainActivity extends AppCompatActivity
 
         //tint change
         ColorStateList csl = AppCompatResources.getColorStateList(this, R.color.black);
-        Drawable drawableone = ContextCompat.getDrawable(getApplicationContext(),R.drawable.navicon);
+        Drawable drawableone = ContextCompat.getDrawable(getApplicationContext(), R.drawable.navicon);
         DrawableCompat.setTintList(drawableone, csl);
 
         toolbar.setNavigationIcon(drawableone);
@@ -78,78 +73,40 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        Drawable drawable = ContextCompat.getDrawable(getApplicationContext(),R.drawable.context);
+        Drawable drawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.context);
         toolbar.setOverflowIcon(drawable);
 
-        startShift=(Button)findViewById(R.id.startshift);
-        laterShift=(Button)findViewById(R.id.noshift);
-        toolbarText=(TextView)findViewById(R.id.titletext);
-        shift=(FloatingActionButton)findViewById(R.id.shift);
-        order=(FloatingActionButton)findViewById(R.id.order);
-        report=(FloatingActionButton)findViewById(R.id.report);
-        notification=(FloatingActionButton)findViewById(R.id.notification);
-    }
 
+        toolbarText = (TextView) findViewById(R.id.titletext);
 
-    private void setListener() {
-        startShift.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch(event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        startShift.setBackgroundResource(R.drawable.round_solid_blue);
-                        startShift.setTextColor(getResources().getColor(R.color.white));
-                        return true;
-                    case MotionEvent.ACTION_UP:
-                        startShift.setBackgroundResource(R.drawable.round_shape_border_blue);
-                        startShift.setTextColor(getResources().getColor(R.color.themeblue));
-                        return true;
-                }
-                return false;
-            }
-        });
+        shift = (FloatingActionButton) findViewById(R.id.shift);
+        order = (FloatingActionButton) findViewById(R.id.order);
+        report = (FloatingActionButton) findViewById(R.id.report);
+        notification = (FloatingActionButton) findViewById(R.id.notification);
 
-        laterShift.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch(event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        laterShift.setBackgroundResource(R.drawable.round_shape_solid_invalid);
-                        laterShift.setTextColor(getResources().getColor(R.color.white));
-                        return true;
-                    case MotionEvent.ACTION_UP:
-                        laterShift.setBackgroundResource(R.drawable.round_shape_border_orange);
-                        laterShift.setTextColor(getResources().getColor(R.color.themered));
-                        return true;
-                }
-                return false;
-            }
-        });
-
-        startShift.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
-        laterShift.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
+        //initailly shift fragment
+        fragment = ShiftFragment.newInstance();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.frame_layout, fragment);
+        transaction.commit();
 
     }
+
 
     private void setBottomBar() {
 
         shift.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                fragment = ShiftFragment.newInstance();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.frame_layout, fragment);
+                transaction.commit();
+
                 shift.setImageResource(R.drawable.shiftsiconselected);
                 shift.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.themered)));
-                navigatingBottomBar(order,report,notification,"SHIFT");
+                navigatingBottomBar(order, report, notification, "SHIFT");
             }
         });
 
@@ -157,27 +114,47 @@ public class MainActivity extends AppCompatActivity
         order.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                fragment = OrderFragment.newInstance();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.frame_layout, fragment);
+                transaction.commit();
+
+
                 order.setImageResource(R.drawable.ordersiconselected);
                 order.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.themered)));
-                navigatingBottomBar(shift,report,notification,"ORDER");
+                navigatingBottomBar(shift, report, notification, "ORDER");
             }
         });
 
         report.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                fragment = ReportFragment.newInstance();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.frame_layout, fragment);
+                transaction.commit();
+
+
                 report.setImageResource(R.drawable.reportsiconselected);
                 report.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.themered)));
-                navigatingBottomBar(shift,order,notification,"REPORT");
+                navigatingBottomBar(shift, order, notification, "REPORT");
             }
         });
 
         notification.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                fragment = NotificationFragment.newInstance();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.frame_layout, fragment);
+                transaction.commit();
+
                 notification.setImageResource(R.drawable.notificationsiconselected);
                 notification.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.themered)));
-                navigatingBottomBar(shift,report,order,"NOTIFICATIONS");
+                navigatingBottomBar(shift, report, order, "NOTIFICATIONS");
             }
         });
 
@@ -196,16 +173,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void checkingIDS(String string) {
-        if(string.equals("shift")){
+        if (string.equals("shift")) {
             shift.setImageResource(R.drawable.shiftsicon);
             shift.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
-        }else if(string.equals("order")){
+        } else if (string.equals("order")) {
             order.setImageResource(R.drawable.ordersicon);
             order.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
-        }else if(string.equals("report")){
+        } else if (string.equals("report")) {
             report.setImageResource(R.drawable.reportsicon);
             report.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
-        }else if(string.equals("notification")){
+        } else if (string.equals("notification")) {
             notification.setImageResource(R.drawable.notificationsicon);
             notification.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
         }
@@ -268,7 +245,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public int getWidth(){
+    public int getWidth() {
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
