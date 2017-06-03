@@ -1,10 +1,21 @@
 package com.example.mayankaggarwal.dcare.activities;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.content.res.AppCompatResources;
+import android.util.Log;
+import android.util.TypedValue;
+import android.view.Display;
+import android.view.MotionEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -14,6 +25,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.mayankaggarwal.dcare.R;
@@ -21,48 +34,181 @@ import com.example.mayankaggarwal.dcare.R;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private TextView mTextMessage;
-
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
-                    return true;
-                case R.id.navigation_dashboard:
-                    mTextMessage.setText(R.string.title_dashboard);
-                    return true;
-                case R.id.navigation_notifications:
-                    mTextMessage.setText(R.string.title_notifications);
-                    return true;
-            }
-            return false;
-        }
-
-    };
+    TextView toolbarText;
+    Button startShift,laterShift;
+    FloatingActionButton shift,order,report,notification;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        initialize();
+        setListener();
+        setBottomBar();
+
+    }
+
+    private void initialize() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mTextMessage = (TextView) findViewById(R.id.message);
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
+        //tint change
+        ColorStateList csl = AppCompatResources.getColorStateList(this, R.color.black);
+        Drawable drawableone = ContextCompat.getDrawable(getApplicationContext(),R.drawable.navicon);
+        DrawableCompat.setTintList(drawableone, csl);
+
+        toolbar.setNavigationIcon(drawableone);
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawer.openDrawer(GravityCompat.START);
+            }
+        });
+
+//        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+//                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+//        drawer.setDrawerListener(toggle);
+//        toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        Drawable drawable = ContextCompat.getDrawable(getApplicationContext(),R.drawable.context);
+        toolbar.setOverflowIcon(drawable);
+
+        startShift=(Button)findViewById(R.id.startshift);
+        laterShift=(Button)findViewById(R.id.noshift);
+        toolbarText=(TextView)findViewById(R.id.titletext);
+        shift=(FloatingActionButton)findViewById(R.id.shift);
+        order=(FloatingActionButton)findViewById(R.id.order);
+        report=(FloatingActionButton)findViewById(R.id.report);
+        notification=(FloatingActionButton)findViewById(R.id.notification);
+    }
+
+
+    private void setListener() {
+        startShift.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        startShift.setBackgroundResource(R.drawable.round_solid_blue);
+                        startShift.setTextColor(getResources().getColor(R.color.white));
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        startShift.setBackgroundResource(R.drawable.round_shape_border_blue);
+                        startShift.setTextColor(getResources().getColor(R.color.themeblue));
+                        return true;
+                }
+                return false;
+            }
+        });
+
+        laterShift.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        laterShift.setBackgroundResource(R.drawable.round_shape_solid_invalid);
+                        laterShift.setTextColor(getResources().getColor(R.color.white));
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        laterShift.setBackgroundResource(R.drawable.round_shape_border_orange);
+                        laterShift.setTextColor(getResources().getColor(R.color.themered));
+                        return true;
+                }
+                return false;
+            }
+        });
+
+        startShift.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        laterShift.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+    }
+
+    private void setBottomBar() {
+
+        shift.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                shift.setImageResource(R.drawable.shiftsiconselected);
+                shift.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.themered)));
+                navigatingBottomBar(order,report,notification,"SHIFT");
+            }
+        });
+
+
+        order.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                order.setImageResource(R.drawable.ordersiconselected);
+                order.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.themered)));
+                navigatingBottomBar(shift,report,notification,"ORDER");
+            }
+        });
+
+        report.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                report.setImageResource(R.drawable.reportsiconselected);
+                report.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.themered)));
+                navigatingBottomBar(shift,order,notification,"REPORT");
+            }
+        });
+
+        notification.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                notification.setImageResource(R.drawable.notificationsiconselected);
+                notification.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.themered)));
+                navigatingBottomBar(shift,report,order,"NOTIFICATIONS");
+            }
+        });
+
+    }
+
+    private void navigatingBottomBar(FloatingActionButton one, FloatingActionButton two, FloatingActionButton three, String title) {
+        toolbarText.setText(title);
+
+        final String s_one = getResources().getResourceEntryName(one.getId());
+        final String s_two = getResources().getResourceEntryName(two.getId());
+        final String s_three = getResources().getResourceEntryName(three.getId());
+
+        checkingIDS(s_one);
+        checkingIDS(s_two);
+        checkingIDS(s_three);
+    }
+
+    private void checkingIDS(String string) {
+        if(string.equals("shift")){
+            shift.setImageResource(R.drawable.shiftsicon);
+            shift.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+        }else if(string.equals("order")){
+            order.setImageResource(R.drawable.ordersicon);
+            order.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+        }else if(string.equals("report")){
+            report.setImageResource(R.drawable.reportsicon);
+            report.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+        }else if(string.equals("notification")){
+            notification.setImageResource(R.drawable.notificationsicon);
+            notification.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+        }
     }
 
     @Override
@@ -120,5 +266,14 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public int getWidth(){
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+        int height = size.y;
+        return width;
     }
 }
