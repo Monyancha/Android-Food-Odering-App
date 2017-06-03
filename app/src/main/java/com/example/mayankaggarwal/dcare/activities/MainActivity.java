@@ -4,11 +4,13 @@ import android.content.res.ColorStateList;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.content.res.AppCompatResources;
 import android.view.Display;
 import android.view.View;
@@ -23,6 +25,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.example.mayankaggarwal.dcare.R;
+import com.example.mayankaggarwal.dcare.fragments.CustomNavigationDrawer;
 import com.example.mayankaggarwal.dcare.fragments.NotificationFragment;
 import com.example.mayankaggarwal.dcare.fragments.OrderFragment;
 import com.example.mayankaggarwal.dcare.fragments.ReportFragment;
@@ -34,6 +37,7 @@ public class MainActivity extends AppCompatActivity
     TextView toolbarText;
     FloatingActionButton shift, order, report, notification;
     Fragment fragment = null;
+    ActionBarDrawerToggle mActionDrawerToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,29 +53,55 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        final DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        final CoordinatorLayout mainView = (CoordinatorLayout) findViewById(R.id.main_coordinate);
+
+        mActionDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+            }
+
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                super.onDrawerSlide(drawerView, slideOffset);
+                mainView.setTranslationX(slideOffset * drawerView.getWidth());
+                drawerLayout.bringChildToFront(drawerView);
+                drawerLayout.requestLayout();
+            }
+        };
 
         //tint change
         ColorStateList csl = AppCompatResources.getColorStateList(this, R.color.black);
         Drawable drawableone = ContextCompat.getDrawable(getApplicationContext(), R.drawable.navicon);
         DrawableCompat.setTintList(drawableone, csl);
 
-        toolbar.setNavigationIcon(drawableone);
 
+        mActionDrawerToggle.setDrawerIndicatorEnabled(false);
+        toolbar.setNavigationIcon(drawableone);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                drawer.openDrawer(GravityCompat.START);
+                drawerLayout.openDrawer(GravityCompat.START);
             }
         });
 
-//        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-//                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-//        drawer.setDrawerListener(toggle);
-//        toggle.syncState();
+        drawerLayout.setDrawerListener(mActionDrawerToggle);
+        mActionDrawerToggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        CustomNavigationDrawer.nav_layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+            }
+        });
+
 
         Drawable drawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.context);
         toolbar.setOverflowIcon(drawable);
@@ -233,10 +263,6 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
 
         }
 
