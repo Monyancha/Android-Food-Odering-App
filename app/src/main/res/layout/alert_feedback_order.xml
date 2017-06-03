@@ -64,25 +64,30 @@
             <ImageView
                 android:layout_width="35dp"
                 android:layout_height="35dp"
+                android:id="@+id/starone"
                 android:layout_margin="5dp"
-                android:src="@drawable/selectstar"/>
+                android:src="@drawable/notselectstar"/>
             <ImageView
                 android:layout_width="35dp"
+                android:id="@+id/startwo"
+                android:layout_height="35dp"
+                android:layout_margin="5dp"
+                android:src="@drawable/notselectstar"/>
+            <ImageView
+                android:layout_width="35dp"
+                android:id="@+id/starthree"
                 android:layout_height="35dp"
                 android:layout_margin="5dp"
                 android:src="@drawable/notselectstar"/>
             <ImageView
                 android:layout_width="35dp"
                 android:layout_height="35dp"
+                android:id="@+id/starfour"
                 android:layout_margin="5dp"
                 android:src="@drawable/notselectstar"/>
             <ImageView
                 android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_margin="5dp"
-                android:src="@drawable/notselectstar"/>
-            <ImageView
-                android:layout_width="35dp"
+                android:id="@+id/starfive"
                 android:layout_height="35dp"
                 android:layout_margin="5dp"
                 android:src="@drawable/notselectstar"/>
