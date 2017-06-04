@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -24,22 +25,25 @@ import android.widget.TextView;
 import com.example.mayankaggarwal.dcare.R;
 import com.example.mayankaggarwal.dcare.rest.Data;
 import com.example.mayankaggarwal.dcare.utils.Globals;
+import com.example.mayankaggarwal.dcare.utils.Prefs;
 
 public class VerifyOtp extends AppCompatActivity {
 
-    TextView otptext;
+    TextView otptext,resendotp,otptimer,resendotpmobile;
     EditText otpedit;
     Button verfiy,back;
     CheckBox tc;
     Boolean checked=false;
     CharSequence otp;
     ProgressDialog sendProgress;
+    ProgressDialog otpProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_verify_otp);
         sendProgress=new ProgressDialog(this);
+        otpProgress = new ProgressDialog(this);
         initalize();
     }
 
@@ -48,6 +52,12 @@ public class VerifyOtp extends AppCompatActivity {
         otptext=(TextView)findViewById(R.id.otptext);
         otpedit=(EditText)findViewById(R.id.otpedittext);
         verfiy=(Button)findViewById(R.id.verifybutton);
+
+        resendotp=(TextView)findViewById(R.id.resend);
+        otptimer=(TextView)findViewById(R.id.timertext);
+        resendotpmobile=(TextView)findViewById(R.id.resendmobilenumber);
+        otptimer.setVisibility(View.GONE);
+        resendotpmobile.setVisibility(View.GONE);
 
         back=(Button)findViewById(R.id.backbutton);
         back.setBackgroundResource(R.drawable.round_shape_border_grey);
@@ -71,6 +81,46 @@ public class VerifyOtp extends AppCompatActivity {
             public void onClick(View v) {
                 sendOtp(otp);
             }
+        });
+
+        resendotp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                resendotpmobile.setVisibility(View.GONE);
+                otptimer.setVisibility(View.GONE);
+
+                resendotp.setEnabled(false);
+                resendotp.setTextColor(getResources().getColor(R.color.themegrey));
+
+                String mobileNumber= Prefs.getPrefs("user_mobile",VerifyOtp.this);
+                String countrynumber= Prefs.getPrefs("country_number", VerifyOtp.this);
+
+                resendotpmobile.setText("OTP is sent to "+"+"+countrynumber+" "+mobileNumber);
+
+                resendotpmobile.setVisibility(View.VISIBLE);
+                otptimer.setVisibility(View.VISIBLE);
+
+                getOTP(mobileNumber, countrynumber);
+
+                CountDownTimer countDownTimer=new CountDownTimer(30000,1000){
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        int time=(int)(millisUntilFinished/1000);
+                        otptimer.setVisibility(View.VISIBLE);
+                        otptimer.setText(String.valueOf(time));
+                    }
+                    @Override
+                    public void onFinish() {
+                        otptimer.setVisibility(View.GONE);
+                        resendotp.setEnabled(true);
+                        resendotp.setTextColor(getResources().getColor(R.color.themered));
+                        resendotpmobile.setVisibility(View.GONE);
+                    }
+                };
+                countDownTimer.start();
+            }
+
         });
 
 
@@ -157,6 +207,22 @@ public class VerifyOtp extends AppCompatActivity {
             public void onFailure() {
                 Globals.hideProgressDialog(sendProgress);
                 Globals.showFailAlert(VerifyOtp.this, "Error Verifying OTP");
+            }
+        });
+    }
+
+    private void getOTP(final String mobileNumber, String countryCode) {
+        Globals.showProgressDialog(otpProgress, "OTP", "Fetching...");
+        Data.getOTP(mobileNumber, countryCode, this, new Data.UpdateCallback() {
+            @Override
+            public void onUpdate() {
+                Globals.hideProgressDialog(otpProgress);
+            }
+
+            @Override
+            public void onFailure() {
+                Globals.hideProgressDialog(otpProgress);
+                Globals.showFailAlert(VerifyOtp.this, "Error OTP");
             }
         });
     }

@@ -17,7 +17,7 @@ import com.example.mayankaggarwal.dcare.R;
 public class CustomNavigationDrawer extends Fragment {
 
 
-    public static LinearLayout nav_layout;
+    public static LinearLayout nav_layout,orderlayout,reportlayout,notificationlayout,shiftlayout,settinglayout,supportlayout,logout;
 
     public CustomNavigationDrawer() {
         // Required empty public constructor
@@ -31,7 +31,20 @@ public class CustomNavigationDrawer extends Fragment {
         View view;
         view=inflater.inflate(R.layout.fragment_custom_navigation_drawer, container, false);
         nav_layout=(LinearLayout)view.findViewById(R.id.nav_layout);
+        orderlayout=(LinearLayout)view.findViewById(R.id.orderlayout);
+        reportlayout=(LinearLayout)view.findViewById(R.id.reportlayout);
+        notificationlayout=(LinearLayout)view.findViewById(R.id.notificationlayout);
+        shiftlayout=(LinearLayout)view.findViewById(R.id.shiftlayout);
+        settinglayout=(LinearLayout)view.findViewById(R.id.settinglayout);
+        supportlayout=(LinearLayout)view.findViewById(R.id.supportlayout);
+        logout=(LinearLayout)view.findViewById(R.id.logout);
+
+        settingListener();
+
         return view;
+    }
+
+    private void settingListener() {
 
     }
 

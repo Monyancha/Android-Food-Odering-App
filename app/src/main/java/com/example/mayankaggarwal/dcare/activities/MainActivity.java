@@ -1,7 +1,6 @@
 package com.example.mayankaggarwal.dcare.activities;
 
 import android.content.res.ColorStateList;
-import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -12,7 +11,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.content.res.AppCompatResources;
-import android.view.Display;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -25,11 +23,13 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.example.mayankaggarwal.dcare.R;
+import com.example.mayankaggarwal.dcare.fragments.Setting;
 import com.example.mayankaggarwal.dcare.fragments.CustomNavigationDrawer;
 import com.example.mayankaggarwal.dcare.fragments.NotificationFragment;
 import com.example.mayankaggarwal.dcare.fragments.OrderFragment;
 import com.example.mayankaggarwal.dcare.fragments.ReportFragment;
 import com.example.mayankaggarwal.dcare.fragments.ShiftFragment;
+import com.example.mayankaggarwal.dcare.fragments.SupportFragment;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -38,6 +38,8 @@ public class MainActivity extends AppCompatActivity
     FloatingActionButton shift, order, report, notification;
     Fragment fragment = null;
     ActionBarDrawerToggle mActionDrawerToggle;
+    DrawerLayout drawerLayout;
+    CoordinatorLayout mainView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,8 +55,8 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        final DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        final CoordinatorLayout mainView = (CoordinatorLayout) findViewById(R.id.main_coordinate);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mainView = (CoordinatorLayout) findViewById(R.id.main_coordinate);
 
         mActionDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
@@ -95,12 +97,7 @@ public class MainActivity extends AppCompatActivity
         drawerLayout.setDrawerListener(mActionDrawerToggle);
         mActionDrawerToggle.syncState();
 
-        CustomNavigationDrawer.nav_layout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawerLayout.closeDrawer(GravityCompat.START);
-            }
-        });
+        settingNavigationClickListener();
 
 
         Drawable drawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.context);
@@ -119,6 +116,109 @@ public class MainActivity extends AppCompatActivity
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.frame_layout, fragment);
         transaction.commit();
+
+    }
+
+    private void settingNavigationClickListener() {
+        CustomNavigationDrawer.nav_layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+            }
+        });
+
+        CustomNavigationDrawer.orderlayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+                fragment = OrderFragment.newInstance();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.frame_layout, fragment);
+                transaction.commit();
+
+
+                order.setImageResource(R.drawable.ordersiconselected);
+                order.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.themered)));
+                navigatingBottomBar(shift, report, notification, "ORDER");
+            }
+        });
+
+        CustomNavigationDrawer.reportlayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+                fragment = ReportFragment.newInstance();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.frame_layout, fragment);
+                transaction.commit();
+
+
+                report.setImageResource(R.drawable.reportsiconselected);
+                report.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.themered)));
+                navigatingBottomBar(shift, order, notification, "REPORT");
+            }
+        });
+
+        CustomNavigationDrawer.notificationlayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+                fragment = NotificationFragment.newInstance();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.frame_layout, fragment);
+                transaction.commit();
+
+                notification.setImageResource(R.drawable.notificationsiconselected);
+                notification.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.themered)));
+                navigatingBottomBar(shift, report, order, "NOTIFICATIONS");
+            }
+        });
+
+        CustomNavigationDrawer.shiftlayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+                fragment = ShiftFragment.newInstance();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.frame_layout, fragment);
+                transaction.commit();
+
+                shift.setImageResource(R.drawable.shiftsiconselected);
+                shift.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.themered)));
+                navigatingBottomBar(order, report, notification, "SHIFT");
+            }
+        });
+
+        CustomNavigationDrawer.settinglayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+                fragment = Setting.newInstance();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.frame_layout, fragment);
+                transaction.commit();
+
+                shift.setImageResource(R.drawable.shiftsicon);
+                shift.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+                navigatingBottomBar(order, report, notification, "SETTING");
+            }
+        });
+
+        CustomNavigationDrawer.supportlayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+                fragment = SupportFragment.newInstance();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.frame_layout, fragment);
+                transaction.commit();
+
+                shift.setImageResource(R.drawable.shiftsicon);
+                shift.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+                navigatingBottomBar(order, report, notification, "SUPPORT");
+            }
+        });
+
 
     }
 
@@ -271,12 +371,12 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public int getWidth() {
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        int width = size.x;
-        int height = size.y;
-        return width;
-    }
+//    public int getWidth() {
+//        Display display = getWindowManager().getDefaultDisplay();
+//        Point size = new Point();
+//        display.getSize(size);
+//        int width = size.x;
+//        int height = size.y;
+//        return width;
+//    }
 }

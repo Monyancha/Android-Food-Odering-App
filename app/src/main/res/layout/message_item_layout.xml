@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff">
+
+    <!--set visibilty-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/blueitemlayout"
+        android:layout_gravity="start"
+        android:gravity="start">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:id="@+id/blueedittext"
+            android:textColor="@color/white"
+            android:text="We are looking into it. We will update it soon."
+            android:background="@drawable/message_item_blue"/>
+    </LinearLayout>
+
+    <!--set visibilty-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/reditemlayout"
+        android:layout_gravity="end"
+        android:gravity="end">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:id="@+id/rededittext"
+            android:textColor="@color/white"
+            android:text="We are looking into it. We will update it soon."
+            android:background="@drawable/message_red_item"/>
+    </LinearLayout>
+</LinearLayout>

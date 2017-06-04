@@ -67,7 +67,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:id="@+id/orderlayout">
 
                 <ImageView
                     android:layout_width="40dp"
@@ -92,7 +93,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:id="@+id/reportlayout">
 
                 <ImageView
                     android:layout_width="40dp"
@@ -116,6 +118,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
+                android:id="@+id/notificationlayout"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -140,6 +143,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
+                android:id="@+id/shiftlayout"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -165,6 +169,7 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:layout_marginLeft="5dp"
+                android:id="@+id/settinglayout"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -190,6 +195,7 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:layout_marginLeft="5dp"
+                android:id="@+id/supportlayout"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -214,6 +220,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
+                android:id="@+id/logout"
                 android:layout_marginLeft="5dp"
                 android:orientation="horizontal">
 
