@@ -58,6 +58,12 @@ public class MainActivity extends AppCompatActivity
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mainView = (CoordinatorLayout) findViewById(R.id.main_coordinate);
 
+        drawerLayout.setScrimColor(getResources().getColor(R.color.nav_blur));
+
+
+//        drawerLayout.setDrawerShadow(R.drawable.selectstar,GravityCompat.START);
+
+
         mActionDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
             @Override

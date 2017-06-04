@@ -20,4 +20,6 @@
     <color name="themeblue">#00bcd4</color>
     <color name="themered">#fe4c13</color>
 
+    <color name="nav_blur">#95F0F8FF</color>
+
 </resources>
