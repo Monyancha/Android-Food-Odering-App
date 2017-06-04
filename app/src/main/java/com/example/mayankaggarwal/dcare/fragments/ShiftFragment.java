@@ -3,6 +3,7 @@ package com.example.mayankaggarwal.dcare.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,6 +19,7 @@ import com.example.mayankaggarwal.dcare.R;
 public class ShiftFragment extends Fragment {
 
     Button startShift,laterShift;
+    Fragment fragment = null;
 
     public static ShiftFragment newInstance() {
         ShiftFragment fragment = new ShiftFragment();
@@ -78,7 +80,10 @@ public class ShiftFragment extends Fragment {
         startShift.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                fragment = StartShift.newInstance();
+                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.frame_layout, fragment);
+                transaction.commit();
             }
         });
 
