@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_coordinate"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/main_coordinate"
     tools:context="com.example.mayankaggarwal.dcare.activities.MainActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -36,75 +37,12 @@
 
     <include layout="@layout/content_main" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:background="@color/themeblue"
-        android:gravity="bottom">
+    <include layout="@layout/bottom_bar_layout" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_margin="10dp"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:weightSum="4">
+</android.support.design.widget.CoordinatorLayout>
 
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/shift"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:layout_weight="1"
-                android:elevation="0dp"
-                android:src="@drawable/shiftsiconselected"
-                app:backgroundTint="@color/themered"
-                app:elevation="0dp"
-                app:fabSize="mini" />
 
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/order"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:layout_weight="1"
-                android:elevation="0dp"
-                android:src="@drawable/ordersicon"
-                app:backgroundTint="@color/white"
-                app:elevation="0dp"
-                app:fabSize="mini" />
 
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/report"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:layout_weight="1"
-                android:elevation="0dp"
-                android:src="@drawable/reportsicon"
-                app:backgroundTint="@color/white"
-                app:elevation="0dp"
-                app:fabSize="mini" />
-
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/notification"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:layout_weight="1"
-                android:elevation="0dp"
-                android:src="@drawable/notificationsicon"
-                app:backgroundTint="@color/white"
-                app:elevation="0dp"
-                app:fabSize="mini" />
-        </LinearLayout>
-    </LinearLayout>
 
     <!--<android.support.design.widget.BottomNavigationView-->
     <!--android:id="@+id/navigation"-->
@@ -114,5 +52,3 @@
     <!--android:layout_gravity="bottom"-->
     <!--android:background="?android:attr/windowBackground"-->
     <!--app:menu="@menu/navigation" />-->
-
-</android.support.design.widget.CoordinatorLayout>
