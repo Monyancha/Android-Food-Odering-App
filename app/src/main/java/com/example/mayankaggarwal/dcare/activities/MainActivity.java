@@ -23,6 +23,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.example.mayankaggarwal.dcare.R;
+import com.example.mayankaggarwal.dcare.fragments.MapFragment;
 import com.example.mayankaggarwal.dcare.fragments.Setting;
 import com.example.mayankaggarwal.dcare.fragments.CustomNavigationDrawer;
 import com.example.mayankaggarwal.dcare.fragments.NotificationFragment;
@@ -350,6 +351,10 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            fragment = MapFragment.newInstance();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.frame_layout, fragment);
+            transaction.commit();
             return true;
         }
 
