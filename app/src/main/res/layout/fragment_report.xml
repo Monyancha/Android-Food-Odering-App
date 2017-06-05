@@ -3,9 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:background="@color/white"
-    tools:context="com.example.mayankaggarwal.dcare.fragments.ReportFragment"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    tools:context="com.example.mayankaggarwal.dcare.fragments.ReportFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -33,17 +33,17 @@
                 android:weightSum="3"
                 android:gravity="center">
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="20dp"
-                android:gravity="end"
-                android:text="JAN 1"
-                android:textColor="@color/themeblue"
-                android:textSize="20dp"
-                android:textStyle="bold" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginTop="20dp"
+                    android:gravity="end"
+                    android:text="JAN 1"
+                    android:textColor="@color/themeblue"
+                    android:textSize="20dp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="0dp"
