@@ -33,13 +33,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center">
-
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center">
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/firstmedia"
                     android:layout_width="150dp"
+                    android:clickable="true"
+                    android:contextClickable="true"
                     android:layout_height="150dp"
                     android:layout_gravity="center"
                     android:src="@drawable/cameraprofile" />
+                    <ImageButton
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:background="#00000000"
+                        android:id="@+id/buttonone"/>
+                </RelativeLayout>
             </LinearLayout>
 
             <ProgressBar
@@ -412,12 +423,22 @@
                 android:layout_height="wrap_content"
                 android:gravity="center">
 
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center">
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/secondmedia"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
                     android:layout_gravity="center"
                     android:src="@drawable/cameraprofile" />
+                    <ImageButton
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:background="#00000000"
+                        android:id="@+id/buttontwo"/>
+                </RelativeLayout>
             </LinearLayout>
 
             <ProgressBar
@@ -482,13 +503,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center">
-
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center">
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/thirdmedia"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
                     android:layout_gravity="center"
                     android:src="@drawable/cameraprofile" />
+                    <ImageButton
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:background="#00000000"
+                        android:id="@+id/buttonthree"/>
+                </RelativeLayout>
             </LinearLayout>
 
             <ProgressBar

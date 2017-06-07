@@ -4,6 +4,9 @@ package com.example.mayankaggarwal.dcare.fragments;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -13,6 +16,9 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
 import com.example.mayankaggarwal.dcare.R;
+import com.example.mayankaggarwal.dcare.adapter.RVStartShift;
+import com.example.mayankaggarwal.dcare.rest.Data;
+import com.example.mayankaggarwal.dcare.utils.Globals;
 
 
 /**
@@ -23,6 +29,7 @@ public class StartShift extends Fragment {
     Button proceed;
     CheckBox rememberBox;
     Fragment fragment;
+    public static RecyclerView recyclerView;
 
 
     public static StartShift newInstance() {
@@ -42,10 +49,27 @@ public class StartShift extends Fragment {
         View view=inflater.inflate(R.layout.fragment_start_shift, container, false);
         proceed=(Button)view.findViewById(R.id.proceedbutton);
         rememberBox=(CheckBox)view.findViewById(R.id.remember);
+        recyclerView=(RecyclerView)view.findViewById(R.id.shiftrecyclerview);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        fetchVendor();
         proceed.setEnabled(false);
         rememberBox.setEnabled(false);
         setListener();
         return view;
+    }
+
+    private void fetchVendor() {
+        Data.fetchStartShift(getActivity(), new Data.UpdateCallback() {
+            @Override
+            public void onUpdate() {
+                Log.d("tagg","success");
+                recyclerView.setAdapter(new RVStartShift(getActivity()));
+            }
+            @Override
+            public void onFailure() {
+                Globals.showFailAlert(getActivity(), "Error fetching");
+            }
+        });
     }
 
     private void setListener() {

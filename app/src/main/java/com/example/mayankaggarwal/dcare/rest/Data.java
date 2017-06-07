@@ -6,7 +6,6 @@ import android.provider.Settings;
 import android.util.Log;
 
 import com.example.mayankaggarwal.dcare.activities.Details;
-import com.example.mayankaggarwal.dcare.activities.MainActivity;
 import com.example.mayankaggarwal.dcare.models.Bootup.BootupRequest;
 import com.example.mayankaggarwal.dcare.models.Bootup.BootupResponse;
 import com.example.mayankaggarwal.dcare.models.Bootup.Header;
@@ -22,6 +21,8 @@ import com.example.mayankaggarwal.dcare.models.GetOTP.OtpPayload;
 import com.example.mayankaggarwal.dcare.models.GetOTP.OtpRequest;
 import com.example.mayankaggarwal.dcare.models.GetOTP.OtpResponse;
 import com.example.mayankaggarwal.dcare.models.Bootup.Payload;
+import com.example.mayankaggarwal.dcare.models.StartShift.PayloadShiftRequest;
+import com.example.mayankaggarwal.dcare.models.StartShift.StartShiftRequest;
 import com.example.mayankaggarwal.dcare.models.VerifyOTP.VerifyHeader;
 import com.example.mayankaggarwal.dcare.models.VerifyOTP.VerifyOtpRequest;
 import com.example.mayankaggarwal.dcare.models.VerifyOTP.VerifyPayload;
@@ -29,6 +30,7 @@ import com.example.mayankaggarwal.dcare.models.VerifyOTP.VerifyResponse;
 import com.example.mayankaggarwal.dcare.utils.Globals;
 import com.example.mayankaggarwal.dcare.utils.Prefs;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.gson.JsonObject;
 
 import retrofit2.Call;
 
@@ -61,6 +63,11 @@ public class Data {
     public static void uploadProfile(final String fname,  final String mname,  final String lname,  final String sex,  final String dob, final String nickname,final String email,final String ssn,final String dmv,final String lat,final String lng,final Activity activity,final  UpdateCallback updateCallback) {
         UploadProfile uploadProfile = new UploadProfile(updateCallback, fname, mname, lname, sex, dob, nickname, email, ssn, dmv, lat, lng);
         uploadProfile.execute(activity);
+    }
+
+    public static void fetchStartShift(final Activity activity, final UpdateCallback updateCallback) {
+        FetchStartShift fetchStartShift = new FetchStartShift(updateCallback);
+        fetchStartShift.execute(activity);
     }
 
 
@@ -462,6 +469,73 @@ public class Data {
                 updateCallback.onUpdate();
             } else {
                 updateCallback.onFailure();
+            }
+        }
+    }
+
+
+    public static class FetchStartShift extends AsyncTask<Activity, Void, Integer> {
+
+        UpdateCallback updateCallback;
+        int error = 0;
+
+        public FetchStartShift(UpdateCallback updateCallback) {
+            this.updateCallback = updateCallback;
+        }
+
+        @Override
+        protected Integer doInBackground(Activity... params) {
+            final Activity activity = params[0];
+
+            ApiInterface apiInterface = new ApiClient().getClient(activity).create(ApiInterface.class);
+            StartShiftRequest startShiftRequest = new StartShiftRequest();
+
+            PayloadShiftRequest payload = new PayloadShiftRequest();
+
+            startShiftRequest.payload = payload;
+
+            HeaderMediaRequest header = new HeaderMediaRequest();
+            header.requestId = Globals.randomAlphaNumeric(10);
+            header.appVersion = Globals.appVersion;
+            if (!(Prefs.getPrefs("crewid", activity).equals("notfound"))) {
+                header.crewId = Prefs.getPrefs("crewid", activity);
+            }
+            if (!(Prefs.getPrefs("wpr_token", activity).equals("notfound"))) {
+                header.wprToken = Prefs.getPrefs("wpr_token", activity);
+            }
+            startShiftRequest.header = header;
+
+            final Call<JsonObject> shiftResponseCall = apiInterface.fetchvendor(startShiftRequest);
+
+            try {
+                JsonObject jsonObject = shiftResponseCall.execute().body();
+                if (jsonObject.get("success").getAsBoolean()) {
+                    Prefs.setPrefs("vendors",jsonObject.toString(),activity);
+                    error = 0;
+                } else {
+                    Globals.errorRes = jsonObject.get("error").getAsJsonObject().get("message").getAsString();
+                    error = 1;
+                }
+            } catch (Exception e) {
+                error = 1;
+                Globals.errorRes = "No Internet Connection!";
+                e.printStackTrace();
+            }
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            if (Details.stopMediaUpload) {
+                Details.stopMediaUpload = false;
+                Globals.errorRes = "You Stopped File Upload!";
+                updateCallback.onFailure();
+            } else {
+                if (error == 0) {
+                    updateCallback.onUpdate();
+                } else {
+                    updateCallback.onFailure();
+                }
             }
         }
     }

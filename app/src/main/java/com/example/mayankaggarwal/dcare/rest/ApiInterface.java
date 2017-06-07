@@ -9,8 +9,10 @@ import com.example.mayankaggarwal.dcare.models.Details.ProfileUpload.ProfileRequ
 import com.example.mayankaggarwal.dcare.models.Details.ProfileUpload.ProfileResponse;
 import com.example.mayankaggarwal.dcare.models.GetOTP.OtpRequest;
 import com.example.mayankaggarwal.dcare.models.GetOTP.OtpResponse;
+import com.example.mayankaggarwal.dcare.models.StartShift.StartShiftRequest;
 import com.example.mayankaggarwal.dcare.models.VerifyOTP.VerifyOtpRequest;
 import com.example.mayankaggarwal.dcare.models.VerifyOTP.VerifyResponse;
+import com.google.gson.JsonObject;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -36,6 +38,9 @@ public interface ApiInterface {
 
     @POST("uploadprofile")
     Call<ProfileResponse> uploadprofile(@Body ProfileRequest profileRequest);
+
+    @POST("fetchvendor")
+    Call<JsonObject> fetchvendor(@Body StartShiftRequest startShiftRequest);
 
 
 //    @GET("faculties.json")

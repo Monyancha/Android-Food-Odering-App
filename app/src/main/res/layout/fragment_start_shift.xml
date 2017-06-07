@@ -1,4 +1,4 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -14,22 +14,6 @@
         android:orientation="vertical"
         android:layout_margin="10dp">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="18dp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:textColor="@color/themeblue"
-            android:text="REGISTERED MERCHANT"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:layout_marginTop="5dp"
-            android:background="@color/themegrey"/>
-
-    <!--set visibilty-->
     <android.support.v7.widget.RecyclerView
         android:id="@+id/shiftrecyclerview"
         android:layout_width="match_parent"
@@ -55,7 +39,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:gravity="center"
+            android:gravity="end"
             android:orientation="horizontal"
             android:weightSum="1">
             <Button
@@ -71,4 +55,4 @@
         </LinearLayout>
     </LinearLayout>
 
-</ScrollView>
+</LinearLayout>

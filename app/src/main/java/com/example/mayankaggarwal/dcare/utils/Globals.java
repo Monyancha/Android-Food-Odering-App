@@ -13,6 +13,9 @@ import com.example.mayankaggarwal.dcare.R;
 import com.example.mayankaggarwal.dcare.activities.OtpActivity;
 import com.example.mayankaggarwal.dcare.rest.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by mayankaggarwal on 25/02/17.
  */
@@ -72,7 +75,7 @@ public class Globals {
             }
         }).show();
     }
-    public static int threeMedia=0;
+    public static List<Integer> threeMedia=new ArrayList<>();
 
 
 }

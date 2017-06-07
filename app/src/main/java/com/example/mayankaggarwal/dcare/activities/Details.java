@@ -38,6 +38,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -70,6 +71,7 @@ public class Details extends AppCompatActivity {
     TextView fnametext, sextext, mobiletext, emailtext, nicknametext, dobtext, ssntext, dmvtext;
     ImageView datepicker, uploadsymbolOne, uploadsymbolTwo;
     de.hdodenhof.circleimageview.CircleImageView firstUpload, secondUpload, thirdUpload;
+    ImageButton bone,btwo,bthree;
     Boolean validEmail = false, validDate = false, validMobile = false;
     Button proceed, back;
     String sexSelected = null;
@@ -98,6 +100,10 @@ public class Details extends AppCompatActivity {
     private void intialize() {
 
         hideKeyboard(findViewById(R.id.linearlayout));
+
+        bone=(ImageButton)findViewById(R.id.buttonone);
+        btwo=(ImageButton)findViewById(R.id.buttontwo);
+        bthree=(ImageButton)findViewById(R.id.buttonthree);
 
         profileprogress = (ProgressBar) findViewById(R.id.profileprogress);
         ssnprogress = (ProgressBar) findViewById(R.id.ssnprogress);
@@ -221,26 +227,81 @@ public class Details extends AppCompatActivity {
             }
         });
 
-        firstUpload.setOnClickListener(new View.OnClickListener() {
+        bone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showCameraAlert(Details.this, firstUpload);
+                if(Globals.threeMedia.contains(1)){
+                    firstUpload.setImageResource(R.drawable.cameraprofile);
+                    for(int i=0;i<Globals.threeMedia.size();i++){
+                        if (Globals.threeMedia.get(i)==1){
+                            Globals.threeMedia.remove(i);
+                        }
+                    }
+                }else {
+                    showCameraAlert(Details.this, firstUpload);
+                }
             }
         });
 
-        secondUpload.setOnClickListener(new View.OnClickListener() {
+        btwo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showCameraAlert(Details.this, secondUpload);
+                if(Globals.threeMedia.contains(2)){
+                    secondUpload.setImageResource(R.drawable.cameraprofile);
+                    for(int i=0;i<Globals.threeMedia.size();i++){
+                        if (Globals.threeMedia.get(i)==2){
+                            Globals.threeMedia.remove(i);
+                        }
+                    }
+                }else {
+                    showCameraAlert(Details.this, secondUpload);
+                }
             }
         });
 
-        thirdUpload.setOnClickListener(new View.OnClickListener() {
+        bthree.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showCameraAlert(Details.this, thirdUpload);
+                if(Globals.threeMedia.contains(3)){
+                    thirdUpload.setImageResource(R.drawable.cameraprofile);
+                    for(int i=0;i<Globals.threeMedia.size();i++){
+                        if (Globals.threeMedia.get(i)==3){
+                            Globals.threeMedia.remove(i);
+                        }
+                    }
+                }else {
+                    showCameraAlert(Details.this, thirdUpload);
+                }
             }
         });
+
+//        firstUpload.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Log.d("tagg","working");
+//                Log.d("tagg",Globals.threeMedia.toString());
+//                if(Globals.threeMedia.contains(1)){
+//                    firstUpload.setImageResource(R.drawable.cameraprofile);
+//                    Globals.threeMedia.remove(1);
+//                }else {
+//                    showCameraAlert(Details.this, firstUpload);
+//                }
+//            }
+//        });
+//
+//        secondUpload.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                showCameraAlert(Details.this, secondUpload);
+//            }
+//        });
+//
+//        thirdUpload.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                showCameraAlert(Details.this, thirdUpload);
+//            }
+//        });
 
         profileprogress.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -420,7 +481,7 @@ public class Details extends AppCompatActivity {
                 if (nickname.getText().toString().trim().length() > 1) {
                     if (ssn.getText().toString().trim().length() > 1) {
                         if (dmv.getText().toString().trim().length() > 1) {
-                            if (Globals.threeMedia == 3) {
+                            if (Globals.threeMedia.size() == 3) {
                                 return true;
                             }
                         }
@@ -446,7 +507,7 @@ public class Details extends AppCompatActivity {
                 return true;
             }
         });
-    }
+     }
 
     public void showCameraAlert(final Activity activity, ImageView imageView) {
         final AlertDialog alertDialog;
@@ -589,7 +650,7 @@ public class Details extends AppCompatActivity {
                             @Override
                             public void onUpdate() {
                                 profileprogress.setVisibility(View.GONE);
-                                Globals.threeMedia++;
+                                Globals.threeMedia.add(1);
                                 if (compress) {
                                     if (compressPhoto != null)
                                         alertImageview.setImageBitmap(compressPhoto);
@@ -615,7 +676,7 @@ public class Details extends AppCompatActivity {
                             @Override
                             public void onUpdate() {
                                 ssnprogress.setVisibility(View.GONE);
-                                Globals.threeMedia++;
+                                Globals.threeMedia.add(2);
                                 if (compress) {
                                     if (compressPhoto != null)
                                         alertImageview.setImageBitmap(compressPhoto);
@@ -641,7 +702,7 @@ public class Details extends AppCompatActivity {
                             @Override
                             public void onUpdate() {
                                 dmvprogress.setVisibility(View.GONE);
-                                Globals.threeMedia++;
+                                Globals.threeMedia.add(3);
                                 if (compress) {
                                     if (compressPhoto != null)
                                         alertImageview.setImageBitmap(compressPhoto);
