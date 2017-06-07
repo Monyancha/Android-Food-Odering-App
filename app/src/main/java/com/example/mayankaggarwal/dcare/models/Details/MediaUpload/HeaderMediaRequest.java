@@ -1,22 +1,19 @@
-package com.example.mayankaggarwal.dcare.models;
+package com.example.mayankaggarwal.dcare.models.Details.MediaUpload;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * Created by mayankaggarwal on 31/05/17.
+ * Created by mayankaggarwal on 06/06/17.
  */
 
-public class VerifyHeader {
-    @SerializedName("requestID")
+public class HeaderMediaRequest {
+    @SerializedName("request_id")
     @Expose
-    public String requestID;
-    @SerializedName("App_version")
+    public String requestId;
+    @SerializedName("app_version")
     @Expose
     public String appVersion;
-    @SerializedName("user_id")
-    @Expose
-    public String userId;
     @SerializedName("crew_id")
     @Expose
     public String crewId;

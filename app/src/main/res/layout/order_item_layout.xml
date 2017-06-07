@@ -46,7 +46,7 @@
                 android:layout_gravity="right"
                 android:gravity="right"
                 android:id="@+id/rateorder"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -71,7 +71,7 @@
                 android:layout_gravity="right"
                 android:gravity="right"
                 android:id="@+id/orderconfirm"
-                android:visibility="visible"
+                android:visibility="gone"
                 android:orientation="horizontal">
 
                 <ImageView

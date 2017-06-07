@@ -1,4 +1,4 @@
-package com.example.mayankaggarwal.dcare.models;
+package com.example.mayankaggarwal.dcare.models.VerifyOTP;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

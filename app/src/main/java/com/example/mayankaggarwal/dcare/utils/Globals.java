@@ -6,6 +6,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
+import android.view.View;
+import android.widget.TextView;
 
 import com.example.mayankaggarwal.dcare.R;
 import com.example.mayankaggarwal.dcare.activities.OtpActivity;
@@ -70,5 +72,7 @@ public class Globals {
             }
         }).show();
     }
+    public static int threeMedia=0;
+
 
 }

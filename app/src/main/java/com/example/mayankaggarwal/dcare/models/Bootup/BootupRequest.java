@@ -1,17 +1,19 @@
-package com.example.mayankaggarwal.dcare.models;
+package com.example.mayankaggarwal.dcare.models.Bootup;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * Created by mayankaggarwal on 31/05/17.
+ * Created by mayankaggarwal on 30/05/17.
  */
 
-public class VerifyOtpRequest {
+public class BootupRequest {
+
     @SerializedName("header")
     @Expose
-    public VerifyHeader header;
+    public Header header;
     @SerializedName("payload")
     @Expose
-    public VerifyPayload payload;
+    public Payload payload;
+
 }

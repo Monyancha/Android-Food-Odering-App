@@ -1,4 +1,4 @@
-package com.example.mayankaggarwal.dcare.models;
+package com.example.mayankaggarwal.dcare.models.GetOTP;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -7,13 +7,11 @@ import com.google.gson.annotations.SerializedName;
  * Created by mayankaggarwal on 30/05/17.
  */
 
-public class BootupRequest {
-
+public class OtpRequest {
     @SerializedName("header")
     @Expose
-    public Header header;
+    public OtpHeader header;
     @SerializedName("payload")
     @Expose
-    public Payload payload;
-
+    public OtpPayload payload;
 }

@@ -33,7 +33,7 @@ public class OrderFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view=inflater.inflate(R.layout.fragment_order, container, false);
-//        OrderAlerts.showfeedbackAlert(getActivity());
+        OrderAlerts.showfeedbackAlert(getActivity());
         return view;
     }
 

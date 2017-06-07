@@ -1,26 +1,26 @@
-package com.example.mayankaggarwal.dcare.models;
+package com.example.mayankaggarwal.dcare.models.GetOTP;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * Created by mayankaggarwal on 31/05/17.
+ * Created by mayankaggarwal on 30/05/17.
  */
 
-public class VerifyPayload {
+public class OtpPayload {
     @SerializedName("source")
     @Expose
     public String source;
     @SerializedName("r_mobile")
     @Expose
     public String rMobile;
-    @SerializedName("country_code")
-    @Expose
-    public String countryCode;
     @SerializedName("timestamp_of_request")
     @Expose
     public String timestampOfRequest;
-    @SerializedName("otp")
+    @SerializedName("request_flag")
     @Expose
-    public String otp;
+    public Integer requestFlag;
+    @SerializedName("country_code")
+    @Expose
+    public String country_code;
 }

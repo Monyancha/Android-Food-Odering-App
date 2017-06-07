@@ -1,5 +1,6 @@
 package com.example.mayankaggarwal.dcare.activities;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -351,10 +352,11 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            fragment = MapFragment.newInstance();
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.frame_layout, fragment);
-            transaction.commit();
+//            fragment = MapFragment.newInstance();
+//            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+//            transaction.replace(R.id.frame_layout, fragment);
+//            transaction.commit();
+            startActivity(new Intent(MainActivity.this,ProgressBarActivity.class));
             return true;
         }
 
