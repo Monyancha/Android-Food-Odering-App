@@ -77,5 +77,17 @@ public class Globals {
     }
     public static List<Integer> threeMedia=new ArrayList<>();
 
+    public static int ORDERSTATE_RECIEVED = 1;
+	public static int ORDERSTATE_ACCEPTED = 2;
+	public static int ORDERSTATE_UNASSIGNED = 3;
+	public static int ORDERSTATE_ASSIGNED = 4;
+	public static int ORDERSTATE_CREW_AKNOLEDGED = 5;
+	public static int ORDERSTATE_PACKED = 6;
+	public static int ORDERSTATE_IN_TRANSIT = 7;
+    //public static int ORDER_END_STATE = 8;
+	public static int ORDERSTATE_END_STATE_DELIVERED = 9;
+	public static int ORDERSTATE_END_STATE_CANCELD = 10;
+	public static int ORDERSTATE_END_STATE_RETURNED = 11;
+
 
 }

@@ -20,6 +20,8 @@ import com.example.mayankaggarwal.dcare.models.GetOTP.OtpPayload;
 import com.example.mayankaggarwal.dcare.models.GetOTP.OtpRequest;
 import com.example.mayankaggarwal.dcare.models.GetOTP.OtpResponse;
 import com.example.mayankaggarwal.dcare.models.Bootup.Payload;
+import com.example.mayankaggarwal.dcare.models.Orders.GetOrderRequest;
+import com.example.mayankaggarwal.dcare.models.Orders.PayloadOrderRequest;
 import com.example.mayankaggarwal.dcare.models.StartShift.FetchVendor.PayloadShiftRequest;
 import com.example.mayankaggarwal.dcare.models.StartShift.FetchVendor.StartShiftRequest;
 import com.example.mayankaggarwal.dcare.models.StartShift.StartEndShift.PayloadRequest;
@@ -75,6 +77,11 @@ public class Data {
     public static void crewShiftStartEnd(final Activity activity,String vendor_id,String checkItems_id,String startORend,String latitude,String longitude,final UpdateCallback updateCallback) {
         CrewShiftStart crewShiftStart = new CrewShiftStart(updateCallback, vendor_id, checkItems_id, startORend, latitude, longitude);
         crewShiftStart.execute(activity);
+    }
+
+    public static void getAllOrders(final Activity activity,String vendor_id,String shift_id,final UpdateCallback updateCallback) {
+        GetAllOrders getAllOrders = new GetAllOrders(updateCallback, vendor_id,shift_id);
+        getAllOrders.execute(activity);
     }
 
 
@@ -595,6 +602,72 @@ public class Data {
                     error = 0;
                 } else {
                     Globals.errorRes = jsonObject.error.message;
+                    error = 1;
+                }
+            } catch (Exception e) {
+                error = 1;
+                Globals.errorRes = "No Internet Connection!";
+                e.printStackTrace();
+            }
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            if (error == 0) {
+                updateCallback.onUpdate();
+            } else {
+                updateCallback.onFailure();
+            }
+        }
+    }
+
+    public static class GetAllOrders extends AsyncTask<Activity, Void, Integer> {
+
+        UpdateCallback updateCallback;
+        int error = 0;
+        String vendor_id, shift_id;
+
+        public GetAllOrders(UpdateCallback updateCallback, String vendor_id, String shift_id) {
+            this.updateCallback = updateCallback;
+            this.vendor_id = vendor_id;
+            this.shift_id = shift_id;
+        }
+
+        @Override
+        protected Integer doInBackground(Activity... params) {
+            final Activity activity = params[0];
+
+            ApiInterface apiInterface = new ApiClient().getClient(activity).create(ApiInterface.class);
+            GetOrderRequest getOrderRequest = new GetOrderRequest();
+
+            PayloadOrderRequest payload = new PayloadOrderRequest();
+
+            payload.shiftId =shift_id;
+            payload.vendorId =vendor_id;
+
+            getOrderRequest.payload = payload;
+
+            HeaderMediaRequest header = new HeaderMediaRequest();
+            header.requestId = Globals.randomAlphaNumeric(10);
+            header.appVersion = Globals.appVersion;
+            if (!(Prefs.getPrefs("crewid", activity).equals("notfound"))) {
+                header.crewId = Prefs.getPrefs("crewid", activity);
+            }
+            if (!(Prefs.getPrefs("wpr_token", activity).equals("notfound"))) {
+                header.wprToken = Prefs.getPrefs("wpr_token", activity);
+            }
+            getOrderRequest.header = header;
+
+            final Call<JsonObject> orderResponseCall = apiInterface.getallorderscrew(getOrderRequest);
+
+            try {
+                JsonObject jsonObject = orderResponseCall.execute().body();
+                if (jsonObject.get("success").getAsBoolean()) {
+                    Prefs.setPrefs("orderJson",jsonObject.toString(), activity);
+                    error = 0;
+                } else {
+                    Globals.errorRes = jsonObject.get("error").getAsJsonObject().get("message").getAsString();
                     error = 1;
                 }
             } catch (Exception e) {

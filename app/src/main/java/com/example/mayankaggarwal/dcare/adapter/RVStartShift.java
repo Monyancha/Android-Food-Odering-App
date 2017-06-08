@@ -29,6 +29,7 @@ public class RVStartShift extends RecyclerView.Adapter<RVStartShift.MyViewHolder
     JsonObject jsonObject;
     JsonArray vendorArray;
     public static String vendor_id = null;
+    public static String vendor_name = null;
 
 
     public RVStartShift(Activity context) {
@@ -63,6 +64,7 @@ public class RVStartShift extends RecyclerView.Adapter<RVStartShift.MyViewHolder
                 holder.beforeclick.setVisibility(View.GONE);
                 holder.afterclick.setVisibility(View.VISIBLE);
                 vendor_id = ob.get("vendor_id").getAsString();
+                vendor_name=ob.get("vendor_display_name").getAsString();
                 RVCheckItems.checkedItems.clear();
 //                Log.d("tagg", "selected: " + vendor_id);
             }

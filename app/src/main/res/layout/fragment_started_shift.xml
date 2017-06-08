@@ -25,7 +25,8 @@
                 android:layout_height="0dp"
                 android:layout_weight="2"
                 android:gravity="center"
-                android:text="BIG BUN"
+                android:text=""
+                android:id="@+id/vendor_name"
                 android:textColor="@color/dark_grey"
                 android:textSize="30dp"
                 android:textStyle="bold" />
@@ -35,7 +36,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Shift started at 7:00 AM"
+                android:text="Shift started at "
                 android:textColor="@color/dark_grey"
                 android:textSize="15dp" />
 
@@ -47,10 +48,11 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
+                    android:id="@+id/ordersack"
                     android:layout_weight="3"
                     android:layout_marginTop="15dp"
                     android:gravity="center"
-                    android:text="3"
+                    android:text="0"
                     android:textColor="@color/themeblue"
                     android:textSize="90dp"
                     android:textStyle="bold" />
@@ -76,9 +78,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="3"
+                    android:id="@+id/orderspending"
                     android:layout_marginTop="15dp"
                     android:gravity="center"
-                    android:text="2"
+                    android:text="0"
                     android:textColor="@color/themered"
                     android:textSize="90dp"
                     android:textStyle="bold" />
@@ -100,7 +103,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="3"
                 android:layout_gravity="center"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="30dp"
                 android:gravity="center"
                 android:orientation="horizontal"
                 android:weightSum="2">

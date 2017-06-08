@@ -9,6 +9,7 @@ import com.example.mayankaggarwal.dcare.models.Details.ProfileUpload.ProfileRequ
 import com.example.mayankaggarwal.dcare.models.Details.ProfileUpload.ProfileResponse;
 import com.example.mayankaggarwal.dcare.models.GetOTP.OtpRequest;
 import com.example.mayankaggarwal.dcare.models.GetOTP.OtpResponse;
+import com.example.mayankaggarwal.dcare.models.Orders.GetOrderRequest;
 import com.example.mayankaggarwal.dcare.models.StartShift.FetchVendor.StartShiftRequest;
 import com.example.mayankaggarwal.dcare.models.StartShift.StartEndShift.ShiftStartRequest;
 import com.example.mayankaggarwal.dcare.models.StartShift.StartEndShift.ShiftStartResponse;
@@ -46,6 +47,9 @@ public interface ApiInterface {
 
     @POST("crewshift")
     Call<ShiftStartResponse> crewshift(@Body ShiftStartRequest shiftStartRequest);
+
+    @POST("getallorderscrew")
+    Call<JsonObject> getallorderscrew(@Body GetOrderRequest getOrderRequest);
 
 
 //    @GET("faculties.json")

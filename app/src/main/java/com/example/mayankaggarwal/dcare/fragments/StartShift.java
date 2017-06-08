@@ -132,6 +132,7 @@ public class StartShift extends Fragment {
                         public void onUpdate() {
                             Prefs.setPrefs("shiftStarted", "1", getContext());
                             Prefs.setPrefs("vendor_id_selected", vendor_id, getContext());
+                            Prefs.setPrefs("vendor_id_name", RVStartShift.vendor_name, getContext());
                             Prefs.setPrefs("activity_list_selected", finalCheckItems_id, getContext());
                             fragment = StartedShift.newInstance();
                             FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
