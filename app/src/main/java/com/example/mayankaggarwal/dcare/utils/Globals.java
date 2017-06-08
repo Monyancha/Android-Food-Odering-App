@@ -22,11 +22,15 @@ import java.util.List;
 
 public class Globals {
 
+    public static String lat;
+    public static String lng;
+    public static int validatedShift=0;
+
     public static String appVersion = "1.0.0";
     public static String appOS = "Android";
 
     private static final String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    public static String errorRes="";
+    public static String errorRes = "";
 
     public static String randomAlphaNumeric(int count) {
         StringBuilder builder = new StringBuilder();
@@ -37,7 +41,7 @@ public class Globals {
         return builder.toString();
     }
 
-    public static String getCountryFlag(String countryCode){
+    public static String getCountryFlag(String countryCode) {
         int flagOffset = 0x1F1E6;
         int asciiOffset = 0x41;
 
@@ -53,41 +57,49 @@ public class Globals {
         return flag;
     }
 
-    public static void showProgressDialog(ProgressDialog dialog, String title, String message){
+    public static void showProgressDialog(ProgressDialog dialog, String title, String message) {
         dialog.setCancelable(false);
         dialog.setTitle(title);
         dialog.setMessage(message);
         dialog.show();
     }
 
-    public static void hideProgressDialog(ProgressDialog dialog){
+    public static void hideProgressDialog(ProgressDialog dialog) {
         dialog.hide();
     }
 
-    public static void showFailAlert(Activity activity, String title){
-        new AlertDialog.Builder(activity)
-                .setTitle(title)
-                .setCancelable(false)
-                .setMessage(Globals.errorRes).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+    public static void showFailAlert(Activity activity, String title) {
+        AlertDialog.Builder alert = new AlertDialog.Builder(activity);
+        alert.setTitle(title);
+        alert.setCancelable(false);
+        alert.setMessage(Globals.errorRes);
+        alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
-        }).show();
+        });
+        AlertDialog dialog;
+        dialog=alert.create();
+        dialog.show();
+        if (activity.isDestroyed() || activity.isFinishing()) {
+            dialog.dismiss();
+        }
     }
-    public static List<Integer> threeMedia=new ArrayList<>();
 
-    public static int ORDERSTATE_RECIEVED = 1;
-	public static int ORDERSTATE_ACCEPTED = 2;
-	public static int ORDERSTATE_UNASSIGNED = 3;
-	public static int ORDERSTATE_ASSIGNED = 4;
-	public static int ORDERSTATE_CREW_AKNOLEDGED = 5;
-	public static int ORDERSTATE_PACKED = 6;
-	public static int ORDERSTATE_IN_TRANSIT = 7;
+    public static List<Integer> threeMedia = new ArrayList<>();
+
+    //    public static int ORDERSTATE_RECIEVED = 1;
+    public static int ORDERSTATE_ACCEPTED = 2;
+    public static int ORDERSTATE_UNASSIGNED = 3;
+    public static int ORDERSTATE_ASSIGNED = 4;
+    public static int ORDERSTATE_CREW_AKNOLEDGED = 5;
+    public static int ORDERSTATE_PACKED = 6;
+    public static int ORDERSTATE_IN_TRANSIT = 7;
     //public static int ORDER_END_STATE = 8;
-	public static int ORDERSTATE_END_STATE_DELIVERED = 9;
-	public static int ORDERSTATE_END_STATE_CANCELD = 10;
-	public static int ORDERSTATE_END_STATE_RETURNED = 11;
+    public static int ORDERSTATE_END_STATE_DELIVERED = 9;
+    public static int ORDERSTATE_END_STATE_CANCELD = 10;
+    public static int ORDERSTATE_END_STATE_RETURNED = 11;
 
 
 }

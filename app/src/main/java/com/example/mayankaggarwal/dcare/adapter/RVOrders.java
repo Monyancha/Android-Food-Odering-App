@@ -2,6 +2,7 @@ package com.example.mayankaggarwal.dcare.adapter;
 
 import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import com.example.mayankaggarwal.dcare.R;
 import com.example.mayankaggarwal.dcare.utils.Globals;
 import com.example.mayankaggarwal.dcare.utils.OrderAlerts;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 /**
@@ -49,7 +51,7 @@ public class RVOrders extends RecyclerView.Adapter<RVOrders.MyViewHolder> {
             holder.delivered.setVisibility(View.GONE);
             holder.ordername.setTextColor(context.getResources().getColor(R.color.themered));
             holder.line.setBackgroundColor(context.getResources().getColor(R.color.themered));
-        } else if (Integer.parseInt(order_code) == Globals.ORDERSTATE_ACCEPTED) {
+        } else if (Integer.parseInt(order_code) == Globals.ORDERSTATE_CREW_AKNOLEDGED) {
             holder.pending.setVisibility(View.GONE);
             holder.ack.setVisibility(View.VISIBLE);
             holder.delivered.setVisibility(View.GONE);
@@ -63,8 +65,14 @@ public class RVOrders extends RecyclerView.Adapter<RVOrders.MyViewHolder> {
             holder.line.setBackgroundColor(context.getResources().getColor(R.color.themegrey));
         }
 
-        String name = orderObject.get("order_display_id").getAsString();
-        holder.ordername.setText(name);
+
+//        Log.d("tagg","s:"+orderObject.get("order_display_id").getAsString());
+
+        JsonElement jsonElement=orderObject.get("order_display_id");
+            String name = getNullAsEmptyString(jsonElement);
+            if(name!=null) {
+                holder.ordername.setText(name);
+            }
 
         JsonObject dropObject = orderArray.get(position).getAsJsonObject().get("drop_address").getAsJsonObject();
         String address = dropObject.get("house_number").getAsString() + "," + dropObject.get("street_name").getAsString() + "," +
@@ -109,8 +117,12 @@ public class RVOrders extends RecyclerView.Adapter<RVOrders.MyViewHolder> {
             call = (ImageView) itemView.findViewById(R.id.call);
             ack = (LinearLayout) itemView.findViewById(R.id.acklayout);
             pending = (LinearLayout) itemView.findViewById(R.id.pendinglayout);
-            delivered = (LinearLayout) itemView.findViewById(R.id.deliverlayout);
+            delivered = (LinearLayout) itemView.findViewById(R.id.confirmlayout);
             line = (LinearLayout) itemView.findViewById(R.id.line);
         }
+    }
+
+    private String getNullAsEmptyString(JsonElement jsonElement) {
+        return jsonElement.isJsonNull() ? "" : jsonElement.getAsString();
     }
 }

@@ -2,7 +2,10 @@ package com.example.mayankaggarwal.dcare.fragments;
 
 
 import android.Manifest;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -21,6 +24,7 @@ import android.widget.TextView;
 
 import com.example.mayankaggarwal.dcare.R;
 import com.example.mayankaggarwal.dcare.rest.Data;
+import com.example.mayankaggarwal.dcare.utils.AlarmReciever;
 import com.example.mayankaggarwal.dcare.utils.Globals;
 import com.example.mayankaggarwal.dcare.utils.Prefs;
 import com.google.gson.JsonArray;
@@ -29,6 +33,8 @@ import com.google.gson.JsonParser;
 
 import org.json.JSONObject;
 
+import java.util.GregorianCalendar;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -36,10 +42,10 @@ import org.json.JSONObject;
 public class StartedShift extends Fragment {
 
     Button endShift;
-    TextView vendorname,orderack,orderpending;
+    TextView vendorname, orderack, orderpending;
     Fragment fragment;
-    private String latitude;
-    private String longitude;
+    public String latitude;
+    public String longitude;
     private static final int REQUEST_PERMISSION = 1;
 
     public static StartedShift newInstance() {
@@ -54,22 +60,55 @@ public class StartedShift extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view=inflater.inflate(R.layout.fragment_started_shift, container, false);
-        endShift=(Button)view.findViewById(R.id.nodialog);
-        vendorname=(TextView)view.findViewById(R.id.vendor_name);
-        orderack=(TextView)view.findViewById(R.id.ordersack);
-        orderpending=(TextView)view.findViewById(R.id.orderspending);
-        if(!(Prefs.getPrefs("vendor_id_name", getContext()).equals("notfound"))){
+        getCurrentLocation();
+        View view = inflater.inflate(R.layout.fragment_started_shift, container, false);
+        endShift = (Button) view.findViewById(R.id.nodialog);
+        vendorname = (TextView) view.findViewById(R.id.vendor_name);
+        orderack = (TextView) view.findViewById(R.id.ordersack);
+        orderpending = (TextView) view.findViewById(R.id.orderspending);
+        if (!(Prefs.getPrefs("vendor_id_name", getContext()).equals("notfound"))) {
             vendorname.setText(Prefs.getPrefs("vendor_id_name", getContext()));
         }
-        Log.d("tagg",Prefs.getPrefs("vendor_id_selected", getContext()));
-        Log.d("tagg",Prefs.getPrefs("wpr_token", getContext()));
-        Log.d("tagg",Prefs.getPrefs("activity_list_selected", getContext()));
-        Log.d("tagg",Prefs.getPrefs("shift_id", getContext()));
-        Log.d("tagg",Prefs.getPrefs("crewid", getContext()));
+        scheduleShiftAlarm(getContext());
         getOrder();
         setListener();
+        Log.d("tagg", Prefs.getPrefs("vendor_id_selected", getContext()));
+        Log.d("tagg", Prefs.getPrefs("wpr_token", getContext()));
+        Log.d("tagg", Prefs.getPrefs("activity_list_selected", getContext()));
+        Log.d("tagg", Prefs.getPrefs("shift_id", getContext()));
+        Log.d("tagg", Prefs.getPrefs("crewid", getContext()));
         return view;
+    }
+
+    private void validateCrewShift() {
+        if (!(Prefs.getPrefs("vendor_id_selected", getContext()).equals("notfound")) && !(Prefs.getPrefs("shift_id", getContext()).equals("notfound"))) {
+            Data.validateShift(getContext(), Prefs.getPrefs("vendor_id_selected", getContext()), Prefs.getPrefs("shift_id", getContext()), Globals.lat, Globals.lng, new Data.UpdateCallback() {
+                @Override
+                public void onUpdate() {
+                    Log.d("tagg", "success validating shift");
+                    Globals.validatedShift = 1;
+                }
+
+                @Override
+                public void onFailure() {
+                    Prefs.setPrefs("shiftStarted", "0", getContext());
+                    fragment = ShiftFragment.newInstance();
+                    FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                    transaction.replace(R.id.frame_layout, fragment);
+                    transaction.commit();
+                }
+            });
+        }
+    }
+
+    public static void scheduleShiftAlarm(Context context) {
+        if (!(Prefs.getPrefs("shift_refresh_frequency_rate", context).equals("notfound"))) {
+            int time = Integer.parseInt(Prefs.getPrefs("shift_refresh_frequency_rate", context)) * 1000;
+            Intent intentAlarm = new Intent(context, AlarmReciever.class);
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            alarmManager.set(AlarmManager.RTC_WAKEUP, time,
+                    PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT));
+        }
     }
 
     private void setListener() {
@@ -92,8 +131,8 @@ public class StartedShift extends Fragment {
         endShift.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String vendor_id=Prefs.getPrefs("vendor_id_selected", getContext());
-                String checkItems_id=Prefs.getPrefs("activity_list_selected", getContext());
+                String vendor_id = Prefs.getPrefs("vendor_id_selected", getContext());
+                String checkItems_id = Prefs.getPrefs("activity_list_selected", getContext());
                 getCurrentLocation();
                 Data.crewShiftStartEnd(getActivity(), vendor_id, checkItems_id, "end", latitude, longitude, new Data.UpdateCallback() {
                     @Override
@@ -104,6 +143,7 @@ public class StartedShift extends Fragment {
                         transaction.replace(R.id.frame_layout, fragment);
                         transaction.commit();
                     }
+
                     @Override
                     public void onFailure() {
                         Globals.showFailAlert(getActivity(), "Error Ending Shift!");
@@ -114,14 +154,48 @@ public class StartedShift extends Fragment {
     }
 
     public void getCurrentLocation() {
-        LocationManager locationManager;
-        LocationListener locationListener = new LocationListener() {
+        final LocationManager locationManager;
+        LocationListener locationListener = null;
+        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_PERMISSION);
+            return;
+        }
+
+
+        final LocationListener finalLocationListener = locationListener;
+        locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                latitude = String.valueOf(location.getLatitude());
-                longitude = String.valueOf(location.getLongitude());
-//                Log.d("tagg","lat:"+latitude);
-//                Log.d("tagg","lng:"+longitude);
+                if (location == null) {
+                    if (locationManager != null) {
+                        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            // TODO: Consider calling
+                            //    ActivityCompat#requestPermissions
+                            // here to request the missing permissions, and then overriding
+                            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                            //                                          int[] grantResults)
+                            // to handle the case where the user grants the permission. See the documentation
+                            // for ActivityCompat#requestPermissions for more details.
+                            return;
+                        }
+                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, finalLocationListener);
+                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, finalLocationListener);
+                    }
+                } else {
+                    latitude = String.valueOf(location.getLatitude());
+                    longitude = String.valueOf(location.getLongitude());
+                    Globals.lat = String.valueOf(location.getLatitude());
+                    Globals.lng = String.valueOf(location.getLongitude());
+                    if (Globals.validatedShift == 0) {
+                        validateCrewShift();
+                    }
+                }
+                Log.d("tagg", "lat:" + latitude);
+                Log.d("tagg", "lng:" + longitude);
             }
 
             @Override
@@ -138,44 +212,41 @@ public class StartedShift extends Fragment {
 
             }
         };
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_PERMISSION);
-            return;
-        }
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
     }
 
     public void getOrder() {
-        if(!(Prefs.getPrefs("vendor_id_selected", getContext()).equals("notfound")) && !(Prefs.getPrefs("shift_id", getContext()).equals("notfound"))){
+        if (!(Prefs.getPrefs("vendor_id_selected", getContext()).equals("notfound")) && !(Prefs.getPrefs("shift_id", getContext()).equals("notfound"))) {
             Data.getAllOrders(getActivity(), Prefs.getPrefs("vendor_id_selected", getContext()), Prefs.getPrefs("shift_id", getContext()), new Data.UpdateCallback() {
                 @Override
                 public void onUpdate() {
-                    Log.d("tagg","success");
-                    if(!(Prefs.getPrefs("orderJson",getContext())).equals("notfound")){
-                        int ack=0,pending=0;
-                        JsonParser jsonParser=new JsonParser();
-                        JsonObject ob=jsonParser.parse(Prefs.getPrefs("orderJson",getContext())).getAsJsonObject();
-                        JsonArray orderArray=ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
-                        for (int i=0;i<orderArray.size();i++){
-                            JsonObject orderObject=orderArray.get(i).getAsJsonObject().get("order").getAsJsonObject();
-                            String order_code=orderObject.get("order_last_state_code").getAsString();
-                            if(Integer.parseInt(order_code)==Globals.ORDERSTATE_ASSIGNED){
-                                pending++;
+                    Log.d("tagg", "success order");
+                    try {
+                        if (!(Prefs.getPrefs("orderJson", getContext())).equals("notfound")) {
+                            int ack = 0, pending = 0;
+                            JsonParser jsonParser = new JsonParser();
+                            JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", getContext())).getAsJsonObject();
+                            JsonArray orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
+                            for (int i = 0; i < orderArray.size(); i++) {
+                                JsonObject orderObject = orderArray.get(i).getAsJsonObject().get("order").getAsJsonObject();
+                                String order_code = orderObject.get("order_last_state_code").getAsString();
+                                if (Integer.parseInt(order_code) == Globals.ORDERSTATE_ASSIGNED) {
+                                    pending++;
+                                } else if (Integer.parseInt(order_code) == Globals.ORDERSTATE_CREW_AKNOLEDGED) {
+                                    ack++;
+                                }
                             }
-                            else if(Integer.parseInt(order_code)==Globals.ORDERSTATE_ACCEPTED){
-                                ack++;
-                            }
+                            orderack.setText(String.valueOf(ack));
+                            orderpending.setText(String.valueOf(pending));
                         }
-                        orderack.setText(String.valueOf(ack));
-                        orderpending.setText(String.valueOf(pending));
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
+
                 @Override
                 public void onFailure() {
                     Globals.showFailAlert(getActivity(), "Error fetching orders!");

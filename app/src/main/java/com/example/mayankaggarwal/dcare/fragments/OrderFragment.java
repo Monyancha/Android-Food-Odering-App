@@ -50,16 +50,20 @@ public class OrderFragment extends Fragment {
     }
 
     public void getOrder() {
-        if(!(Prefs.getPrefs("vendor_id_selected", getContext()).equals("notfound")) && !(Prefs.getPrefs("shift_id", getContext()).equals("notfound"))){
+        if (!(Prefs.getPrefs("vendor_id_selected", getContext()).equals("notfound")) && !(Prefs.getPrefs("shift_id", getContext()).equals("notfound"))) {
             Data.getAllOrders(getActivity(), Prefs.getPrefs("vendor_id_selected", getContext()), Prefs.getPrefs("shift_id", getContext()), new Data.UpdateCallback() {
                 @Override
                 public void onUpdate() {
-                    Log.d("tagg","success");
-                    if(!(Prefs.getPrefs("orderJson",getContext())).equals("notfound")){
-                        JsonParser jsonParser=new JsonParser();
-                        JsonObject ob=jsonParser.parse(Prefs.getPrefs("orderJson",getContext())).getAsJsonObject();
-                        JsonArray orderArray=ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
-                        recyclerView.setAdapter(new RVOrders(getActivity(),orderArray));
+                    Log.d("tagg", "success");
+                    try {
+                        if (!(Prefs.getPrefs("orderJson", getContext())).equals("notfound")) {
+                            JsonParser jsonParser = new JsonParser();
+                            JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", getContext())).getAsJsonObject();
+                            JsonArray orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
+                            recyclerView.setAdapter(new RVOrders(getActivity(), orderArray));
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
                 @Override

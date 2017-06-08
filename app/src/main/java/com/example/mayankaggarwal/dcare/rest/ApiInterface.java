@@ -1,6 +1,7 @@
 package com.example.mayankaggarwal.dcare.rest;
 
 
+import com.example.mayankaggarwal.dcare.models.AlarmApis.ShiftLiveRequest;
 import com.example.mayankaggarwal.dcare.models.Bootup.BootupRequest;
 import com.example.mayankaggarwal.dcare.models.Bootup.BootupResponse;
 import com.example.mayankaggarwal.dcare.models.Details.MediaUpload.MediaRequest;
@@ -13,6 +14,7 @@ import com.example.mayankaggarwal.dcare.models.Orders.GetOrderRequest;
 import com.example.mayankaggarwal.dcare.models.StartShift.FetchVendor.StartShiftRequest;
 import com.example.mayankaggarwal.dcare.models.StartShift.StartEndShift.ShiftStartRequest;
 import com.example.mayankaggarwal.dcare.models.StartShift.StartEndShift.ShiftStartResponse;
+import com.example.mayankaggarwal.dcare.models.StartedShift.CheckShiftStartRequest;
 import com.example.mayankaggarwal.dcare.models.VerifyOTP.VerifyOtpRequest;
 import com.example.mayankaggarwal.dcare.models.VerifyOTP.VerifyResponse;
 import com.google.gson.JsonObject;
@@ -50,6 +52,12 @@ public interface ApiInterface {
 
     @POST("getallorderscrew")
     Call<JsonObject> getallorderscrew(@Body GetOrderRequest getOrderRequest);
+
+    @POST("keepcrewshiftlive")
+    Call<JsonObject> keepShiftLive(@Body ShiftLiveRequest shiftLiveRequest);
+
+    @POST("validatecrewshift")
+    Call<JsonObject> validatecrewshift(@Body CheckShiftStartRequest checkShiftStartRequest);
 
 
 //    @GET("faculties.json")

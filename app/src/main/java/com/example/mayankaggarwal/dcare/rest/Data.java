@@ -1,10 +1,14 @@
 package com.example.mayankaggarwal.dcare.rest;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.provider.Settings;
+import android.util.Log;
 
 import com.example.mayankaggarwal.dcare.activities.Details;
+import com.example.mayankaggarwal.dcare.models.AlarmApis.PayloadLiveRequest;
+import com.example.mayankaggarwal.dcare.models.AlarmApis.ShiftLiveRequest;
 import com.example.mayankaggarwal.dcare.models.Bootup.BootupRequest;
 import com.example.mayankaggarwal.dcare.models.Bootup.BootupResponse;
 import com.example.mayankaggarwal.dcare.models.Bootup.Header;
@@ -27,6 +31,8 @@ import com.example.mayankaggarwal.dcare.models.StartShift.FetchVendor.StartShift
 import com.example.mayankaggarwal.dcare.models.StartShift.StartEndShift.PayloadRequest;
 import com.example.mayankaggarwal.dcare.models.StartShift.StartEndShift.ShiftStartRequest;
 import com.example.mayankaggarwal.dcare.models.StartShift.StartEndShift.ShiftStartResponse;
+import com.example.mayankaggarwal.dcare.models.StartedShift.CheckShiftStartRequest;
+import com.example.mayankaggarwal.dcare.models.StartedShift.PayloadCheckShift;
 import com.example.mayankaggarwal.dcare.models.VerifyOTP.VerifyHeader;
 import com.example.mayankaggarwal.dcare.models.VerifyOTP.VerifyOtpRequest;
 import com.example.mayankaggarwal.dcare.models.VerifyOTP.VerifyPayload;
@@ -82,6 +88,16 @@ public class Data {
     public static void getAllOrders(final Activity activity,String vendor_id,String shift_id,final UpdateCallback updateCallback) {
         GetAllOrders getAllOrders = new GetAllOrders(updateCallback, vendor_id,shift_id);
         getAllOrders.execute(activity);
+    }
+
+    public static void shiftLive(final Context activity,String vendor_id,String shift_id,final UpdateCallback updateCallback) {
+        ShiftLive shiftLive = new ShiftLive(updateCallback, vendor_id,shift_id);
+        shiftLive.execute(activity);
+    }
+
+    public static void validateShift(final Context activity,String vendor_id,String shift_id,String lat,String lng,final UpdateCallback updateCallback) {
+        ValidateShift validateShift= new ValidateShift(updateCallback, vendor_id,shift_id,lat,lng);
+        validateShift.execute(activity);
     }
 
 
@@ -673,6 +689,150 @@ public class Data {
             } catch (Exception e) {
                 error = 1;
                 Globals.errorRes = "No Internet Connection!";
+                e.printStackTrace();
+            }
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            if (error == 0) {
+                updateCallback.onUpdate();
+            } else {
+                updateCallback.onFailure();
+            }
+        }
+    }
+
+    public static class ShiftLive extends AsyncTask<Context, Void, Integer> {
+
+        UpdateCallback updateCallback;
+        int error = 0;
+        String vendor_id, shift_id;
+
+        public ShiftLive(UpdateCallback updateCallback, String vendor_id, String shift_id) {
+            this.updateCallback = updateCallback;
+            this.vendor_id = vendor_id;
+            this.shift_id = shift_id;
+        }
+
+        @Override
+        protected Integer doInBackground(Context... params) {
+            final Context activity = params[0];
+
+            ApiInterface apiInterface = new ApiClient().getClient(activity).create(ApiInterface.class);
+            ShiftLiveRequest shiftLiveRequest = new ShiftLiveRequest();
+
+            PayloadLiveRequest payload = new PayloadLiveRequest();
+
+            payload.shiftId =shift_id;
+            payload.vendorId =vendor_id;
+            payload.timestamp = String.valueOf((int) System.currentTimeMillis() / 1000);
+
+            Prefs.setPrefs("last_loacal_timestamp",payload.timestamp,activity);
+
+            shiftLiveRequest.payload = payload;
+
+            HeaderMediaRequest header = new HeaderMediaRequest();
+            header.requestId = Globals.randomAlphaNumeric(10);
+            header.appVersion = Globals.appVersion;
+            if (!(Prefs.getPrefs("crewid", activity).equals("notfound"))) {
+                header.crewId = Prefs.getPrefs("crewid", activity);
+            }
+            if (!(Prefs.getPrefs("wpr_token", activity).equals("notfound"))) {
+                header.wprToken = Prefs.getPrefs("wpr_token", activity);
+            }
+            shiftLiveRequest.header = header;
+
+            final Call<JsonObject> shiftLiveResponseCall = apiInterface.keepShiftLive(shiftLiveRequest);
+
+            try {
+                JsonObject jsonObject = shiftLiveResponseCall.execute().body();
+                if (jsonObject.get("success").getAsBoolean()) {
+                    error = 0;
+                } else {
+//                    Globals.errorRes = jsonObject.get("error").getAsJsonObject().get("message").getAsString();
+                    error = 1;
+                }
+            } catch (Exception e) {
+                error = 1;
+//                Globals.errorRes = "No Internet Connection!";
+                e.printStackTrace();
+            }
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            if (error == 0) {
+                updateCallback.onUpdate();
+            } else {
+                updateCallback.onFailure();
+            }
+        }
+    }
+
+
+    public static class ValidateShift extends AsyncTask<Context, Void, Integer> {
+
+        UpdateCallback updateCallback;
+        int error = 0;
+        String vendor_id, shift_id;
+        String lat, lng;
+
+        public ValidateShift(UpdateCallback updateCallback, String vendor_id, String shift_id,String lat,String lng) {
+            this.updateCallback = updateCallback;
+            this.vendor_id = vendor_id;
+            this.shift_id = shift_id;
+            this.lat=lat;
+            this.lng=lng;
+        }
+
+        @Override
+        protected Integer doInBackground(Context... params) {
+            final Context activity = params[0];
+
+            ApiInterface apiInterface = new ApiClient().getClient(activity).create(ApiInterface.class);
+            CheckShiftStartRequest checkShiftStartRequest = new CheckShiftStartRequest();
+
+            PayloadCheckShift payload = new PayloadCheckShift();
+
+            payload.shiftId =shift_id;
+            payload.vendorId =vendor_id;
+            payload.currentLatitude=lat;
+            payload.currentLongitude=lng;
+            if (!(Prefs.getPrefs("last_loacal_timestamp", activity).equals("notfound"))) {
+                payload.lastLocalTimestamp = Prefs.getPrefs("last_loacal_timestamp", activity);
+            }
+
+            Log.d("tagg",payload.currentLatitude+" "+payload.currentLongitude);
+
+            checkShiftStartRequest.payload = payload;
+
+            HeaderMediaRequest header = new HeaderMediaRequest();
+            header.requestId = Globals.randomAlphaNumeric(10);
+            header.appVersion = Globals.appVersion;
+            if (!(Prefs.getPrefs("crewid", activity).equals("notfound"))) {
+                header.crewId = Prefs.getPrefs("crewid", activity);
+            }
+            if (!(Prefs.getPrefs("wpr_token", activity).equals("notfound"))) {
+                header.wprToken = Prefs.getPrefs("wpr_token", activity);
+            }
+            checkShiftStartRequest.header = header;
+
+            final Call<JsonObject> shiftLiveResponseCall = apiInterface.validatecrewshift(checkShiftStartRequest);
+
+            try {
+                JsonObject jsonObject = shiftLiveResponseCall.execute().body();
+                if (jsonObject.get("success").getAsBoolean()) {
+                    error = 0;
+                } else {
+//                    Globals.errorRes = jsonObject.get("error").getAsJsonObject().get("message").getAsString();
+                    error = 1;
+                }
+            } catch (Exception e) {
+                error = 1;
+//                Globals.errorRes = "No Internet Connection!";
                 e.printStackTrace();
             }
             return 0;
