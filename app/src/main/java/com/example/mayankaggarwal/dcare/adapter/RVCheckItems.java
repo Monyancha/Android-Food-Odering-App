@@ -2,19 +2,14 @@ package com.example.mayankaggarwal.dcare.adapter;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
+import android.widget.CompoundButton;
 import com.example.mayankaggarwal.dcare.R;
-import com.example.mayankaggarwal.dcare.activities.OtpActivity;
-import com.example.mayankaggarwal.dcare.utils.Countries;
-import com.example.mayankaggarwal.dcare.utils.Globals;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -29,6 +24,7 @@ public class RVCheckItems extends RecyclerView.Adapter<RVCheckItems.MyViewHolder
 
     private Context context;
     private JsonArray checkList;
+    public static List<String> checkedItems=new ArrayList<>();
 
     public RVCheckItems(Activity context, JsonArray checkList) {
         this.context = context;
@@ -44,11 +40,30 @@ public class RVCheckItems extends RecyclerView.Adapter<RVCheckItems.MyViewHolder
     }
 
     @Override
-    public void onBindViewHolder(RVCheckItems.MyViewHolder holder, final int position) {
+    public void onBindViewHolder(final RVCheckItems.MyViewHolder holder, final int position) {
 
         final JsonObject ob= this.checkList.get(position).getAsJsonObject();
 
         holder.checkBox.setText(ob.get("activity_name").getAsString());
+
+        holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    checkedItems.add(ob.get("activity_id").getAsString());
+                }else {
+                    if(checkedItems!=null){
+                        for(int i=0;i<checkedItems.size();i++){
+                            if(checkedItems.get(i).equals(ob.get("activity_id").getAsString())){
+                                checkedItems.remove(i);
+                            }
+                        }
+                    }
+                }
+//                Log.d("tagg",checkedItems+"");
+            }
+        });
+
     }
 
     @Override

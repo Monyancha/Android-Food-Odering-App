@@ -7,36 +7,128 @@
     android:layout_height="match_parent"
     android:id="@+id/main_coordinate"
     tools:context="com.example.mayankaggarwal.dcare.activities.MainActivity">
-    <android.support.design.widget.AppBarLayout
+
+    <!--<include layout="@layout/content_main" />-->
+    <!--<include layout="@layout/bottom_bar_layout" />-->
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:elevation="0dp"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        app:elevation="0dp">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="2">
+        <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="wrap_content"
             android:elevation="0dp"
-            app:popupTheme="@style/AppTheme.PopupOverlay">
+            android:theme="@style/AppTheme.AppBarOverlay"
+            app:elevation="0dp">
 
-            <TextView
-                android:id="@+id/titletext"
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:elevation="0dp"
+                app:popupTheme="@style/AppTheme.PopupOverlay">
+
+                <TextView
+                    android:id="@+id/titletext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="SHIFT"
+                    android:textColor="@color/dark_grey"
+                    android:textSize="25dp"
+                    android:textStyle="bold" />
+            </android.support.v7.widget.Toolbar>
+
+        </android.support.design.widget.AppBarLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1.75"
+            android:background="@color/white"
+            android:id="@+id/frame_layout"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.25"
+            android:gravity="bottom">
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="SHIFT"
-                android:textColor="@color/dark_grey"
-                android:textSize="25dp"
-                android:textStyle="bold" />
-        </android.support.v7.widget.Toolbar>
+                android:background="@color/themeblue"
+                android:gravity="bottom">
 
-    </android.support.design.widget.AppBarLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_margin="10dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:weightSum="4">
 
-    <include layout="@layout/content_main" />
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/shift"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_weight="1"
+                        android:elevation="0dp"
+                        android:src="@drawable/shiftsiconselected"
+                        app:backgroundTint="@color/themered"
+                        app:elevation="0dp"
+                        app:fabSize="mini" />
 
-    <include layout="@layout/bottom_bar_layout" />
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/order"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_weight="1"
+                        android:elevation="0dp"
+                        android:src="@drawable/ordersicon"
+                        app:backgroundTint="@color/white"
+                        app:elevation="0dp"
+                        app:fabSize="mini" />
+
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/report"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_weight="1"
+                        android:elevation="0dp"
+                        android:src="@drawable/reportsicon"
+                        app:backgroundTint="@color/white"
+                        app:elevation="0dp"
+                        app:fabSize="mini" />
+
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/notification"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_weight="1"
+                        android:elevation="0dp"
+                        android:src="@drawable/notificationsicon"
+                        app:backgroundTint="@color/white"
+                        app:elevation="0dp"
+                        app:fabSize="mini" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
 
 
 </android.support.design.widget.CoordinatorLayout>

@@ -1,18 +1,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frame_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.mayankaggarwal.dcare.fragments.StartShift"
     android:background="@color/white"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    android:id="@+id/frame_layout">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_margin="10dp">
+    tools:context="com.example.mayankaggarwal.dcare.fragments.StartShift">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/shiftrecyclerview"
@@ -20,28 +15,31 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:layout_gravity="bottom"
-            android:gravity="bottom">
-            <CheckBox
-                android:id="@+id/remember"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:buttonTint="@color/themeblue"
-                android:checked="false"
-                android:textSize="10dp"
-                android:textStyle="bold"
-                android:text="Remember above as default"
-                android:textColor="@color/themegrey" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="10dp"
+        android:gravity="bottom"
+        android:orientation="horizontal">
+
+        <CheckBox
+            android:id="@+id/remember"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/themeblue"
+            android:checked="false"
+            android:text="Remember above as default"
+            android:textColor="@color/themegrey"
+            android:textSize="10dp"
+            android:textStyle="bold" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:gravity="end"
             android:orientation="horizontal"
             android:weightSum="1">
+
             <Button
                 android:id="@+id/proceedbutton"
                 android:layout_width="0dp"
@@ -52,7 +50,5 @@
                 android:textColor="@color/themegrey"
                 android:textSize="20dp" />
         </LinearLayout>
-        </LinearLayout>
     </LinearLayout>
-
 </LinearLayout>

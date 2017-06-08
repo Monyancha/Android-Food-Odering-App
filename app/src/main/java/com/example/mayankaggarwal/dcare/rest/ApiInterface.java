@@ -9,7 +9,9 @@ import com.example.mayankaggarwal.dcare.models.Details.ProfileUpload.ProfileRequ
 import com.example.mayankaggarwal.dcare.models.Details.ProfileUpload.ProfileResponse;
 import com.example.mayankaggarwal.dcare.models.GetOTP.OtpRequest;
 import com.example.mayankaggarwal.dcare.models.GetOTP.OtpResponse;
-import com.example.mayankaggarwal.dcare.models.StartShift.StartShiftRequest;
+import com.example.mayankaggarwal.dcare.models.StartShift.FetchVendor.StartShiftRequest;
+import com.example.mayankaggarwal.dcare.models.StartShift.StartEndShift.ShiftStartRequest;
+import com.example.mayankaggarwal.dcare.models.StartShift.StartEndShift.ShiftStartResponse;
 import com.example.mayankaggarwal.dcare.models.VerifyOTP.VerifyOtpRequest;
 import com.example.mayankaggarwal.dcare.models.VerifyOTP.VerifyResponse;
 import com.google.gson.JsonObject;
@@ -41,6 +43,9 @@ public interface ApiInterface {
 
     @POST("fetchvendor")
     Call<JsonObject> fetchvendor(@Body StartShiftRequest startShiftRequest);
+
+    @POST("crewshift")
+    Call<ShiftStartResponse> crewshift(@Body ShiftStartRequest shiftStartRequest);
 
 
 //    @GET("faculties.json")

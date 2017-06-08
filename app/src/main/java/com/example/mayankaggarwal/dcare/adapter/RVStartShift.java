@@ -28,6 +28,7 @@ public class RVStartShift extends RecyclerView.Adapter<RVStartShift.MyViewHolder
     JsonParser jsonParser;
     JsonObject jsonObject;
     JsonArray vendorArray;
+    public static String vendor_id = null;
 
 
     public RVStartShift(Activity context) {
@@ -52,35 +53,37 @@ public class RVStartShift extends RecyclerView.Adapter<RVStartShift.MyViewHolder
     public void onBindViewHolder(final RVStartShift.MyViewHolder holder, final int position) {
         final JsonObject ob = vendorArray.get(position).getAsJsonObject();
         holder.vendor.setText(ob.get("vendor_display_name").getAsString());
-        holder.recyclerView.setAdapter(new RVCheckItems(context, ob.get("activities").getAsJsonArray()));
         holder.beforeclick.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    closeAll();
-                    holder.visibility = true;
-                    holder.vendorafter.setText(ob.get("vendor_display_name").getAsString());
-                    holder.beforeclick.setVisibility(View.GONE);
-                    holder.afterclick.setVisibility(View.VISIBLE);
+                holder.recyclerView.setAdapter(new RVCheckItems(context, ob.get("activities").getAsJsonArray()));
+                closeAll();
+                holder.visibility = true;
+                holder.vendorafter.setText(ob.get("vendor_display_name").getAsString());
+                holder.beforeclick.setVisibility(View.GONE);
+                holder.afterclick.setVisibility(View.VISIBLE);
+                vendor_id = ob.get("vendor_id").getAsString();
+                RVCheckItems.checkedItems.clear();
+//                Log.d("tagg", "selected: " + vendor_id);
             }
         });
 
         holder.afterclick.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    holder.visibility = false;
-                    holder.vendor.setText(ob.get("vendor_display_name").getAsString());
-                    holder.beforeclick.setVisibility(View.VISIBLE);
-                    holder.afterclick.setVisibility(View.GONE);
+                holder.visibility = false;
+                holder.vendor.setText(ob.get("vendor_display_name").getAsString());
+                holder.beforeclick.setVisibility(View.VISIBLE);
+                holder.afterclick.setVisibility(View.GONE);
             }
         });
-
     }
 
     public void closeAll() {
         for (int i = 0; i < vendorArray.size(); i++) {
-                RVStartShift.MyViewHolder holder= (MyViewHolder) StartShift.recyclerView.findViewHolderForLayoutPosition(i);
-                holder.beforeclick.setVisibility(View.VISIBLE);
-                holder.afterclick.setVisibility(View.GONE);
+            RVStartShift.MyViewHolder holder = (MyViewHolder) StartShift.recyclerView.findViewHolderForLayoutPosition(i);
+            holder.beforeclick.setVisibility(View.VISIBLE);
+            holder.afterclick.setVisibility(View.GONE);
         }
     }
 

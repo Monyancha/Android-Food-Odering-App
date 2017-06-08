@@ -31,7 +31,9 @@ import com.example.mayankaggarwal.dcare.fragments.NotificationFragment;
 import com.example.mayankaggarwal.dcare.fragments.OrderFragment;
 import com.example.mayankaggarwal.dcare.fragments.ReportFragment;
 import com.example.mayankaggarwal.dcare.fragments.ShiftFragment;
+import com.example.mayankaggarwal.dcare.fragments.StartedShift;
 import com.example.mayankaggarwal.dcare.fragments.SupportFragment;
+import com.example.mayankaggarwal.dcare.utils.Prefs;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -120,11 +122,24 @@ public class MainActivity extends AppCompatActivity
         notification = (FloatingActionButton) findViewById(R.id.notification);
 
         //initailly shift fragment
-        fragment = ShiftFragment.newInstance();
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.frame_layout, fragment);
-        transaction.commit();
-
+        if (!(Prefs.getPrefs("shiftStarted", this)).equals("notfound")) {
+            if ((Prefs.getPrefs("shiftStarted", this).equals("1"))) {
+                fragment = StartedShift.newInstance();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.frame_layout, fragment);
+                transaction.commit();
+            }else{
+                fragment = ShiftFragment.newInstance();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.frame_layout, fragment);
+                transaction.commit();
+            }
+        } else {
+            fragment = ShiftFragment.newInstance();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.frame_layout, fragment);
+            transaction.commit();
+        }
     }
 
     private void settingNavigationClickListener() {
@@ -186,10 +201,30 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 drawerLayout.closeDrawer(GravityCompat.START);
-                fragment = ShiftFragment.newInstance();
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.frame_layout, fragment);
-                transaction.commit();
+
+                if (!(Prefs.getPrefs("shiftStarted", MainActivity.this)).equals("notfound")) {
+                    if ((Prefs.getPrefs("shiftStarted", MainActivity.this).equals("1"))) {
+                        fragment = StartedShift.newInstance();
+                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                        transaction.replace(R.id.frame_layout, fragment);
+                        transaction.commit();
+                    }else{
+                        fragment = ShiftFragment.newInstance();
+                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                        transaction.replace(R.id.frame_layout, fragment);
+                        transaction.commit();
+                    }
+                } else {
+                    fragment = ShiftFragment.newInstance();
+                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                    transaction.replace(R.id.frame_layout, fragment);
+                    transaction.commit();
+                }
+
+//                fragment = ShiftFragment.newInstance();
+//                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+//                transaction.replace(R.id.frame_layout, fragment);
+//                transaction.commit();
 
                 shift.setImageResource(R.drawable.shiftsiconselected);
                 shift.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.themered)));
@@ -237,10 +272,29 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
 
-                fragment = ShiftFragment.newInstance();
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.frame_layout, fragment);
-                transaction.commit();
+                if (!(Prefs.getPrefs("shiftStarted", MainActivity.this)).equals("notfound")) {
+                    if ((Prefs.getPrefs("shiftStarted", MainActivity.this).equals("1"))) {
+                        fragment = StartedShift.newInstance();
+                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                        transaction.replace(R.id.frame_layout, fragment);
+                        transaction.commit();
+                    }else{
+                        fragment = ShiftFragment.newInstance();
+                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                        transaction.replace(R.id.frame_layout, fragment);
+                        transaction.commit();
+                    }
+                } else {
+                    fragment = ShiftFragment.newInstance();
+                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                    transaction.replace(R.id.frame_layout, fragment);
+                    transaction.commit();
+                }
+
+//                fragment = ShiftFragment.newInstance();
+//                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+//                transaction.replace(R.id.frame_layout, fragment);
+//                transaction.commit();
 
                 shift.setImageResource(R.drawable.shiftsiconselected);
                 shift.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.themered)));
@@ -352,11 +406,11 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-//            fragment = MapFragment.newInstance();
-//            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//            transaction.replace(R.id.frame_layout, fragment);
-//            transaction.commit();
-            startActivity(new Intent(MainActivity.this,ProgressBarActivity.class));
+            fragment = MapFragment.newInstance();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.frame_layout, fragment);
+            transaction.commit();
+//            startActivity(new Intent(MainActivity.this, ProgressBarActivity.class));
             return true;
         }
 

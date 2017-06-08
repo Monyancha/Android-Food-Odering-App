@@ -3,7 +3,6 @@ package com.example.mayankaggarwal.dcare.rest;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.provider.Settings;
-import android.util.Log;
 
 import com.example.mayankaggarwal.dcare.activities.Details;
 import com.example.mayankaggarwal.dcare.models.Bootup.BootupRequest;
@@ -21,8 +20,11 @@ import com.example.mayankaggarwal.dcare.models.GetOTP.OtpPayload;
 import com.example.mayankaggarwal.dcare.models.GetOTP.OtpRequest;
 import com.example.mayankaggarwal.dcare.models.GetOTP.OtpResponse;
 import com.example.mayankaggarwal.dcare.models.Bootup.Payload;
-import com.example.mayankaggarwal.dcare.models.StartShift.PayloadShiftRequest;
-import com.example.mayankaggarwal.dcare.models.StartShift.StartShiftRequest;
+import com.example.mayankaggarwal.dcare.models.StartShift.FetchVendor.PayloadShiftRequest;
+import com.example.mayankaggarwal.dcare.models.StartShift.FetchVendor.StartShiftRequest;
+import com.example.mayankaggarwal.dcare.models.StartShift.StartEndShift.PayloadRequest;
+import com.example.mayankaggarwal.dcare.models.StartShift.StartEndShift.ShiftStartRequest;
+import com.example.mayankaggarwal.dcare.models.StartShift.StartEndShift.ShiftStartResponse;
 import com.example.mayankaggarwal.dcare.models.VerifyOTP.VerifyHeader;
 import com.example.mayankaggarwal.dcare.models.VerifyOTP.VerifyOtpRequest;
 import com.example.mayankaggarwal.dcare.models.VerifyOTP.VerifyPayload;
@@ -60,7 +62,7 @@ public class Data {
         uploadPhoto.execute(activity);
     }
 
-    public static void uploadProfile(final String fname,  final String mname,  final String lname,  final String sex,  final String dob, final String nickname,final String email,final String ssn,final String dmv,final String lat,final String lng,final Activity activity,final  UpdateCallback updateCallback) {
+    public static void uploadProfile(final String fname, final String mname, final String lname, final String sex, final String dob, final String nickname, final String email, final String ssn, final String dmv, final String lat, final String lng, final Activity activity, final UpdateCallback updateCallback) {
         UploadProfile uploadProfile = new UploadProfile(updateCallback, fname, mname, lname, sex, dob, nickname, email, ssn, dmv, lat, lng);
         uploadProfile.execute(activity);
     }
@@ -68,6 +70,11 @@ public class Data {
     public static void fetchStartShift(final Activity activity, final UpdateCallback updateCallback) {
         FetchStartShift fetchStartShift = new FetchStartShift(updateCallback);
         fetchStartShift.execute(activity);
+    }
+
+    public static void crewShiftStartEnd(final Activity activity,String vendor_id,String checkItems_id,String startORend,String latitude,String longitude,final UpdateCallback updateCallback) {
+        CrewShiftStart crewShiftStart = new CrewShiftStart(updateCallback, vendor_id, checkItems_id, startORend, latitude, longitude);
+        crewShiftStart.execute(activity);
     }
 
 
@@ -510,7 +517,7 @@ public class Data {
             try {
                 JsonObject jsonObject = shiftResponseCall.execute().body();
                 if (jsonObject.get("success").getAsBoolean()) {
-                    Prefs.setPrefs("vendors",jsonObject.toString(),activity);
+                    Prefs.setPrefs("vendors", jsonObject.toString(), activity);
                     error = 0;
                 } else {
                     Globals.errorRes = jsonObject.get("error").getAsJsonObject().get("message").getAsString();
@@ -526,16 +533,84 @@ public class Data {
 
         @Override
         protected void onPostExecute(Integer integer) {
-            if (Details.stopMediaUpload) {
-                Details.stopMediaUpload = false;
-                Globals.errorRes = "You Stopped File Upload!";
-                updateCallback.onFailure();
+            if (error == 0) {
+                updateCallback.onUpdate();
             } else {
-                if (error == 0) {
-                    updateCallback.onUpdate();
+                updateCallback.onFailure();
+            }
+        }
+    }
+
+
+    public static class CrewShiftStart extends AsyncTask<Activity, Void, Integer> {
+
+        UpdateCallback updateCallback;
+        int error = 0;
+        String vendor_id, checkItems_id, startORend, latitude,longitude;
+
+        public CrewShiftStart(UpdateCallback updateCallback, String vendor_id, String checkItems_id, String startORend, String latitude, String longitude) {
+            this.updateCallback = updateCallback;
+            this.vendor_id = vendor_id;
+            this.checkItems_id = checkItems_id;
+            this.startORend = startORend;
+            this.latitude = latitude;
+            this.longitude = longitude;
+        }
+
+        @Override
+        protected Integer doInBackground(Activity... params) {
+            final Activity activity = params[0];
+
+            ApiInterface apiInterface = new ApiClient().getClient(activity).create(ApiInterface.class);
+            ShiftStartRequest startShiftRequest = new ShiftStartRequest();
+
+            PayloadRequest payload = new PayloadRequest();
+
+            payload.activityList =checkItems_id;
+            payload.comments ="valid values can be only start and end for operation";
+            payload.currentLatitude =latitude;
+            payload.currentLongitude =longitude;
+            payload.operation =startORend;
+            payload.vendorId =vendor_id;
+
+            startShiftRequest.payload = payload;
+
+            HeaderMediaRequest header = new HeaderMediaRequest();
+            header.requestId = Globals.randomAlphaNumeric(10);
+            header.appVersion = Globals.appVersion;
+            if (!(Prefs.getPrefs("crewid", activity).equals("notfound"))) {
+                header.crewId = Prefs.getPrefs("crewid", activity);
+            }
+            if (!(Prefs.getPrefs("wpr_token", activity).equals("notfound"))) {
+                header.wprToken = Prefs.getPrefs("wpr_token", activity);
+            }
+            startShiftRequest.header = header;
+
+            final Call<ShiftStartResponse> shiftResponseCall = apiInterface.crewshift(startShiftRequest);
+
+            try {
+                ShiftStartResponse jsonObject = shiftResponseCall.execute().body();
+                if (jsonObject.success) {
+                    Prefs.setPrefs("shift_id", String.valueOf(jsonObject.payload.shiftId), activity);
+                    error = 0;
                 } else {
-                    updateCallback.onFailure();
+                    Globals.errorRes = jsonObject.error.message;
+                    error = 1;
                 }
+            } catch (Exception e) {
+                error = 1;
+                Globals.errorRes = "No Internet Connection!";
+                e.printStackTrace();
+            }
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            if (error == 0) {
+                updateCallback.onUpdate();
+            } else {
+                updateCallback.onFailure();
             }
         }
     }
