@@ -44,21 +44,22 @@ public class OrderFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_order, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.recyclervieworder);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         getOrder();
+        getReasons();
         return view;
     }
 
     public void getOrder() {
-        if (!(Prefs.getPrefs("vendor_id_selected", getContext()).equals("notfound")) && !(Prefs.getPrefs("shift_id", getContext()).equals("notfound"))) {
-            Data.getAllOrders(getActivity(), Prefs.getPrefs("vendor_id_selected", getContext()), Prefs.getPrefs("shift_id", getContext()), new Data.UpdateCallback() {
+        if (!(Prefs.getPrefs("vendor_id_selected", getActivity()).equals("notfound")) && !(Prefs.getPrefs("shift_id", getActivity()).equals("notfound"))) {
+            Data.getAllOrders(getActivity(), Prefs.getPrefs("vendor_id_selected", getActivity()), Prefs.getPrefs("shift_id", getActivity()), new Data.UpdateCallback() {
                 @Override
                 public void onUpdate() {
                     Log.d("tagg", "success");
                     try {
-                        if (!(Prefs.getPrefs("orderJson", getContext())).equals("notfound")) {
+                        if (!(Prefs.getPrefs("orderJson", getActivity())).equals("notfound")) {
                             JsonParser jsonParser = new JsonParser();
-                            JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", getContext())).getAsJsonObject();
+                            JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", getActivity())).getAsJsonObject();
                             JsonArray orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
                             recyclerView.setAdapter(new RVOrders(getActivity(), orderArray));
                         }
@@ -72,6 +73,19 @@ public class OrderFragment extends Fragment {
                 }
             });
         }
+    }
+
+    public void getReasons() {
+            Data.getReasons(getActivity(),new Data.UpdateCallback() {
+                @Override
+                public void onUpdate() {
+                    Log.d("tagg", "success reasons");
+                }
+                @Override
+                public void onFailure() {
+                    Globals.showFailAlert(getActivity(), "Error fetching reasons!");
+                }
+            });
     }
 
 }

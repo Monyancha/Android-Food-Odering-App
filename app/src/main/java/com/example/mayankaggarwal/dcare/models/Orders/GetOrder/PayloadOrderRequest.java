@@ -1,4 +1,4 @@
-package com.example.mayankaggarwal.dcare.models.Orders;
+package com.example.mayankaggarwal.dcare.models.Orders.GetOrder;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

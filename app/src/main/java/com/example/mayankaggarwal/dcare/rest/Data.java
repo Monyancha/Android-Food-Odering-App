@@ -24,8 +24,10 @@ import com.example.mayankaggarwal.dcare.models.GetOTP.OtpPayload;
 import com.example.mayankaggarwal.dcare.models.GetOTP.OtpRequest;
 import com.example.mayankaggarwal.dcare.models.GetOTP.OtpResponse;
 import com.example.mayankaggarwal.dcare.models.Bootup.Payload;
-import com.example.mayankaggarwal.dcare.models.Orders.GetOrderRequest;
-import com.example.mayankaggarwal.dcare.models.Orders.PayloadOrderRequest;
+import com.example.mayankaggarwal.dcare.models.Orders.GetOrder.GetOrderRequest;
+import com.example.mayankaggarwal.dcare.models.Orders.GetOrder.PayloadOrderRequest;
+import com.example.mayankaggarwal.dcare.models.Orders.OrderState.ChangeRequest;
+import com.example.mayankaggarwal.dcare.models.Orders.OrderState.PayloadChangeRequest;
 import com.example.mayankaggarwal.dcare.models.StartShift.FetchVendor.PayloadShiftRequest;
 import com.example.mayankaggarwal.dcare.models.StartShift.FetchVendor.StartShiftRequest;
 import com.example.mayankaggarwal.dcare.models.StartShift.StartEndShift.PayloadRequest;
@@ -99,6 +101,17 @@ public class Data {
         ValidateShift validateShift= new ValidateShift(updateCallback, vendor_id,shift_id,lat,lng);
         validateShift.execute(activity);
     }
+
+    public static void changeOrderState(final Context activity,String order_id,String state_code,final UpdateCallback updateCallback) {
+        ChangeState changeState= new ChangeState(updateCallback, order_id,state_code);
+        changeState.execute(activity);
+    }
+
+    public static void getReasons(final Activity activity, final UpdateCallback updateCallback) {
+        GetReasons getReasons = new GetReasons(updateCallback);
+        getReasons.execute(activity);
+    }
+
 
 
     public static void internetConnection(final UpdateCallback updateCallback) {
@@ -613,6 +626,7 @@ public class Data {
 
             try {
                 ShiftStartResponse jsonObject = shiftResponseCall.execute().body();
+                Log.d("tagg","mmm:"+jsonObject.success);
                 if (jsonObject.success) {
                     Prefs.setPrefs("shift_id", String.valueOf(jsonObject.payload.shiftId), activity);
                     error = 0;
@@ -805,7 +819,6 @@ public class Data {
                 payload.lastLocalTimestamp = Prefs.getPrefs("last_loacal_timestamp", activity);
             }
 
-            Log.d("tagg",payload.currentLatitude+" "+payload.currentLongitude);
 
             checkShiftStartRequest.payload = payload;
 
@@ -847,6 +860,141 @@ public class Data {
             }
         }
     }
+
+
+    public static class ChangeState extends AsyncTask<Context, Void, Integer> {
+
+        UpdateCallback updateCallback;
+        int error = 0;
+        String order_id;
+        String state_code;
+
+        public ChangeState(UpdateCallback updateCallback, String order_id,String state_code) {
+            this.updateCallback = updateCallback;
+            this.order_id = order_id;
+            this.state_code=state_code;
+        }
+
+        @Override
+        protected Integer doInBackground(Context... params) {
+            final Context activity = params[0];
+
+            ApiInterface apiInterface = new ApiClient().getClient(activity).create(ApiInterface.class);
+            ChangeRequest changeRequest = new ChangeRequest();
+
+            PayloadChangeRequest payload = new PayloadChangeRequest();
+
+            payload.orderId =order_id;
+            payload.vendorId =Prefs.getPrefs("vendor_id_selected", activity);
+            payload.custRating=Globals.star_Rating;
+            payload.reasonCode=Globals.reason_id;
+            payload.reasonText=Globals.reason_text;
+            payload.actualDeliveryTime=String.valueOf((int) System.currentTimeMillis() / 1000);;
+            payload.crewPickupTime=String.valueOf((int) System.currentTimeMillis() / 1000);;
+            payload.estimatedDeliveryTime=String.valueOf((int) System.currentTimeMillis() / 1000);;
+            payload.newStateCode=state_code;
+
+            changeRequest.payload = payload;
+
+            HeaderMediaRequest header = new HeaderMediaRequest();
+            header.requestId = Globals.randomAlphaNumeric(10);
+            header.appVersion = Globals.appVersion;
+            if (!(Prefs.getPrefs("crewid", activity).equals("notfound"))) {
+                header.crewId = Prefs.getPrefs("crewid", activity);
+            }
+            if (!(Prefs.getPrefs("wpr_token", activity).equals("notfound"))) {
+                header.wprToken = Prefs.getPrefs("wpr_token", activity);
+            }
+            changeRequest.header = header;
+
+            final Call<JsonObject> changeLiveResponseCall = apiInterface.changeorderstatecrew(changeRequest);
+
+            try {
+                JsonObject jsonObject = changeLiveResponseCall.execute().body();
+                if (jsonObject.get("success").getAsBoolean()) {
+                    error = 0;
+                } else {
+                    Globals.errorRes = jsonObject.get("error").getAsJsonObject().get("message").getAsString();
+                    error = 1;
+                }
+            } catch (Exception e) {
+                error = 1;
+                Globals.errorRes = "No Internet Connection!";
+                e.printStackTrace();
+            }
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            if (error == 0) {
+                updateCallback.onUpdate();
+            } else {
+                updateCallback.onFailure();
+            }
+        }
+    }
+
+    public static class GetReasons extends AsyncTask<Activity, Void, Integer> {
+
+        UpdateCallback updateCallback;
+        int error = 0;
+
+        public GetReasons(UpdateCallback updateCallback) {
+            this.updateCallback = updateCallback;
+        }
+
+        @Override
+        protected Integer doInBackground(Activity... params) {
+            final Activity activity = params[0];
+
+            ApiInterface apiInterface = new ApiClient().getClient(activity).create(ApiInterface.class);
+            StartShiftRequest startShiftRequest = new StartShiftRequest();
+
+            PayloadShiftRequest payload = new PayloadShiftRequest();
+
+            startShiftRequest.payload = payload;
+
+            HeaderMediaRequest header = new HeaderMediaRequest();
+            header.requestId = Globals.randomAlphaNumeric(10);
+            header.appVersion = Globals.appVersion;
+            if (!(Prefs.getPrefs("crewid", activity).equals("notfound"))) {
+                header.crewId = Prefs.getPrefs("crewid", activity);
+            }
+            if (!(Prefs.getPrefs("wpr_token", activity).equals("notfound"))) {
+                header.wprToken = Prefs.getPrefs("wpr_token", activity);
+            }
+            startShiftRequest.header = header;
+
+            final Call<JsonObject> shiftResponseCall = apiInterface.getreasons(startShiftRequest);
+
+            try {
+                JsonObject jsonObject = shiftResponseCall.execute().body();
+                if (jsonObject.get("success").getAsBoolean()) {
+                    Prefs.setPrefs("reasonJson", jsonObject.toString(), activity);
+                    error = 0;
+                } else {
+                    Globals.errorRes = jsonObject.get("error").getAsJsonObject().get("message").getAsString();
+                    error = 1;
+                }
+            } catch (Exception e) {
+                error = 1;
+                Globals.errorRes = "No Internet Connection!";
+                e.printStackTrace();
+            }
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            if (error == 0) {
+                updateCallback.onUpdate();
+            } else {
+                updateCallback.onFailure();
+            }
+        }
+    }
+
 
 
     public static class InternetConnection extends AsyncTask<Void, Void, Boolean> {

@@ -13,6 +13,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,6 +35,8 @@ import com.google.gson.JsonParser;
 import org.json.JSONObject;
 
 import java.util.GregorianCalendar;
+
+import static com.example.mayankaggarwal.dcare.R.drawable.context;
 
 
 /**
@@ -66,23 +69,24 @@ public class StartedShift extends Fragment {
         vendorname = (TextView) view.findViewById(R.id.vendor_name);
         orderack = (TextView) view.findViewById(R.id.ordersack);
         orderpending = (TextView) view.findViewById(R.id.orderspending);
-        if (!(Prefs.getPrefs("vendor_id_name", getContext()).equals("notfound"))) {
-            vendorname.setText(Prefs.getPrefs("vendor_id_name", getContext()));
+        if (!(Prefs.getPrefs("vendor_id_name", getActivity()).equals("notfound"))) {
+            vendorname.setText(Prefs.getPrefs("vendor_id_name", getActivity()));
         }
-        scheduleShiftAlarm(getContext());
+        scheduleShiftAlarm(getActivity());
+        scheduleLocalShiftAlarm(getActivity());
         getOrder();
         setListener();
-        Log.d("tagg", Prefs.getPrefs("vendor_id_selected", getContext()));
-        Log.d("tagg", Prefs.getPrefs("wpr_token", getContext()));
-        Log.d("tagg", Prefs.getPrefs("activity_list_selected", getContext()));
-        Log.d("tagg", Prefs.getPrefs("shift_id", getContext()));
-        Log.d("tagg", Prefs.getPrefs("crewid", getContext()));
+        Log.d("tagg", Prefs.getPrefs("vendor_id_selected", getActivity()));
+        Log.d("tagg", Prefs.getPrefs("wpr_token", getActivity()));
+        Log.d("tagg", Prefs.getPrefs("activity_list_selected", getActivity()));
+        Log.d("tagg", Prefs.getPrefs("shift_id", getActivity()));
+        Log.d("tagg", Prefs.getPrefs("crewid", getActivity()));
         return view;
     }
 
     private void validateCrewShift() {
-        if (!(Prefs.getPrefs("vendor_id_selected", getContext()).equals("notfound")) && !(Prefs.getPrefs("shift_id", getContext()).equals("notfound"))) {
-            Data.validateShift(getContext(), Prefs.getPrefs("vendor_id_selected", getContext()), Prefs.getPrefs("shift_id", getContext()), Globals.lat, Globals.lng, new Data.UpdateCallback() {
+//        if (!(Prefs.getPrefs("vendor_id_selected", getActivity()).equals("notfound")) && !(Prefs.getPrefs("shift_id", getActivity()).equals("notfound"))) {
+            Data.validateShift(getActivity(), Prefs.getPrefs("vendor_id_selected", getActivity()), Prefs.getPrefs("shift_id", getActivity()), Globals.lat, Globals.lng, new Data.UpdateCallback() {
                 @Override
                 public void onUpdate() {
                     Log.d("tagg", "success validating shift");
@@ -91,15 +95,24 @@ public class StartedShift extends Fragment {
 
                 @Override
                 public void onFailure() {
-                    Prefs.setPrefs("shiftStarted", "0", getContext());
+                    Prefs.setPrefs("shiftStarted", "0", getActivity());
                     fragment = ShiftFragment.newInstance();
                     FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
                     transaction.replace(R.id.frame_layout, fragment);
                     transaction.commit();
                 }
             });
-        }
+//        }
     }
+
+    public static void scheduleLocalShiftAlarm(Context context) {
+        int time = Integer.parseInt(Prefs.getPrefs("local_shift_refresh_frequency_rate", context)) * 1000;
+        Intent intentAlarm = new Intent(context, AlarmReciever.class);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, time,
+                PendingIntent.getBroadcast(context, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT));
+    }
+
 
     public static void scheduleShiftAlarm(Context context) {
         if (!(Prefs.getPrefs("shift_refresh_frequency_rate", context).equals("notfound"))) {
@@ -131,13 +144,13 @@ public class StartedShift extends Fragment {
         endShift.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String vendor_id = Prefs.getPrefs("vendor_id_selected", getContext());
-                String checkItems_id = Prefs.getPrefs("activity_list_selected", getContext());
+                String vendor_id = Prefs.getPrefs("vendor_id_selected", getActivity());
+                String checkItems_id = Prefs.getPrefs("activity_list_selected", getActivity());
                 getCurrentLocation();
                 Data.crewShiftStartEnd(getActivity(), vendor_id, checkItems_id, "end", latitude, longitude, new Data.UpdateCallback() {
                     @Override
                     public void onUpdate() {
-                        Prefs.setPrefs("shiftStarted", "0", getContext());
+                        Prefs.setPrefs("shiftStarted", "0", getActivity());
                         fragment = ShiftFragment.newInstance();
                         FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
                         transaction.replace(R.id.frame_layout, fragment);
@@ -158,8 +171,8 @@ public class StartedShift extends Fragment {
         LocationListener locationListener = null;
         locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_PERMISSION);
             return;
@@ -172,7 +185,7 @@ public class StartedShift extends Fragment {
             public void onLocationChanged(Location location) {
                 if (location == null) {
                     if (locationManager != null) {
-                        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                             // TODO: Consider calling
                             //    ActivityCompat#requestPermissions
                             // here to request the missing permissions, and then overriding
@@ -219,16 +232,16 @@ public class StartedShift extends Fragment {
     }
 
     public void getOrder() {
-        if (!(Prefs.getPrefs("vendor_id_selected", getContext()).equals("notfound")) && !(Prefs.getPrefs("shift_id", getContext()).equals("notfound"))) {
-            Data.getAllOrders(getActivity(), Prefs.getPrefs("vendor_id_selected", getContext()), Prefs.getPrefs("shift_id", getContext()), new Data.UpdateCallback() {
+        if (!(Prefs.getPrefs("vendor_id_selected", getActivity()).equals("notfound")) && !(Prefs.getPrefs("shift_id", getActivity()).equals("notfound"))) {
+            Data.getAllOrders(getActivity(), Prefs.getPrefs("vendor_id_selected", getActivity()), Prefs.getPrefs("shift_id", getActivity()), new Data.UpdateCallback() {
                 @Override
                 public void onUpdate() {
                     Log.d("tagg", "success order");
                     try {
-                        if (!(Prefs.getPrefs("orderJson", getContext())).equals("notfound")) {
+                        if (!(Prefs.getPrefs("orderJson", getActivity())).equals("notfound")) {
                             int ack = 0, pending = 0;
                             JsonParser jsonParser = new JsonParser();
-                            JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", getContext())).getAsJsonObject();
+                            JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", getActivity())).getAsJsonObject();
                             JsonArray orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
                             for (int i = 0; i < orderArray.size(); i++) {
                                 JsonObject orderObject = orderArray.get(i).getAsJsonObject().get("order").getAsJsonObject();

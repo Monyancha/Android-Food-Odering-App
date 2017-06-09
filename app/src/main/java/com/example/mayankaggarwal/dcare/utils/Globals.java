@@ -25,6 +25,10 @@ public class Globals {
     public static String lat;
     public static String lng;
     public static int validatedShift=0;
+    public static String star_Rating="";
+    public static String reason_id="";
+    public static String reason_text="";
+    public static int state_code_return_or_cancel_or_delivered=0;
 
     public static String appVersion = "1.0.0";
     public static String appOS = "Android";

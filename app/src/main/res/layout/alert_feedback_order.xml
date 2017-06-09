@@ -137,6 +137,17 @@
                     android:id="@+id/reasonspinner"
                     android:background="@drawable/round_shape_border_orange"
                     android:gravity="center" />
+
+                <Spinner
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_weight="0.5"
+                    android:id="@+id/returnspinner"
+                    android:visibility="gone"
+                    android:background="@drawable/round_shape_border_orange"
+                    android:gravity="center" />
             </LinearLayout>
 
             <LinearLayout
