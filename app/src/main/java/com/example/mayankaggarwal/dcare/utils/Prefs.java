@@ -10,10 +10,14 @@ import android.content.SharedPreferences;
 public class Prefs {
 
     public static void setPrefs(String key, String value, Context context){
-        SharedPreferences sharedpreferences = context.getSharedPreferences("Dcare", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putString(key, value);
-        editor.apply();
+        try{
+            SharedPreferences sharedpreferences = context.getSharedPreferences("Dcare", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedpreferences.edit();
+            editor.putString(key, value);
+            editor.apply();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public static String getPrefs(String key, Context context){

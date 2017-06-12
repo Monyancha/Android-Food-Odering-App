@@ -3,6 +3,7 @@ package com.example.mayankaggarwal.dcare.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -16,6 +17,7 @@ import com.example.mayankaggarwal.dcare.rest.Data;
 import com.example.mayankaggarwal.dcare.utils.Globals;
 import com.example.mayankaggarwal.dcare.utils.OrderAlerts;
 import com.example.mayankaggarwal.dcare.utils.Prefs;
+import com.google.android.gms.games.internal.GamesLog;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -28,14 +30,11 @@ public class OrderFragment extends Fragment {
 
 
     public static RecyclerView recyclerView;
+    SwipeRefreshLayout swipeRefreshLayout;
 
     public static OrderFragment newInstance() {
         OrderFragment fragment = new OrderFragment();
         return fragment;
-    }
-
-    public OrderFragment() {
-        // Required empty public constructor
     }
 
 
@@ -45,8 +44,27 @@ public class OrderFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_order, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.recyclervieworder);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        getOrder();
-        getReasons();
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.orderrefresh);
+        if(Globals.orderFetch==0){
+            getOrder();
+        }else {
+            try {
+                if (!(Prefs.getPrefs("orderJson", getActivity())).equals("notfound")) {
+                    JsonParser jsonParser = new JsonParser();
+                    JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", getActivity())).getAsJsonObject();
+                    JsonArray orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
+                    recyclerView.setAdapter(new RVOrders(getActivity(), orderArray));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getOrder();
+            }
+        });
         return view;
     }
 
@@ -62,6 +80,7 @@ public class OrderFragment extends Fragment {
                             JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", getActivity())).getAsJsonObject();
                             JsonArray orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
                             recyclerView.setAdapter(new RVOrders(getActivity(), orderArray));
+                            getReasons();
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -69,6 +88,7 @@ public class OrderFragment extends Fragment {
                 }
                 @Override
                 public void onFailure() {
+                    swipeRefreshLayout.setRefreshing(false);
                     Globals.showFailAlert(getActivity(), "Error fetching orders!");
                 }
             });
@@ -80,9 +100,12 @@ public class OrderFragment extends Fragment {
                 @Override
                 public void onUpdate() {
                     Log.d("tagg", "success reasons");
+                    Globals.orderFetch=1;
+                    swipeRefreshLayout.setRefreshing(false);
                 }
                 @Override
                 public void onFailure() {
+                    swipeRefreshLayout.setRefreshing(false);
                     Globals.showFailAlert(getActivity(), "Error fetching reasons!");
                 }
             });

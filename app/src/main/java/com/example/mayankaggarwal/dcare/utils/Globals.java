@@ -28,7 +28,9 @@ public class Globals {
     public static String star_Rating="";
     public static String reason_id="";
     public static String reason_text="";
-    public static int state_code_return_or_cancel_or_delivered=0;
+    public static int state_code_return_or_cancel_or_delivered=9;
+    public static String customerCare="+918076792025";
+    public static int orderFetch=0;
 
     public static String appVersion = "1.0.0";
     public static String appOS = "Android";
@@ -93,9 +95,9 @@ public class Globals {
 
     public static List<Integer> threeMedia = new ArrayList<>();
 
-    //    public static int ORDERSTATE_RECIEVED = 1;
-    public static int ORDERSTATE_ACCEPTED = 2;
-    public static int ORDERSTATE_UNASSIGNED = 3;
+    //public static int ORDERSTATE_RECIEVED = 1;
+    //public static int ORDERSTATE_ACCEPTED = 2;
+    //public static int ORDERSTATE_UNASSIGNED = 3;
     public static int ORDERSTATE_ASSIGNED = 4;
     public static int ORDERSTATE_CREW_AKNOLEDGED = 5;
     public static int ORDERSTATE_PACKED = 6;

@@ -125,7 +125,6 @@ public class StartShift extends Fragment {
                         checkItems_id = checkItems_id + "," + RVCheckItems.checkedItems.get(i);
                     }
                 }
-
                 Log.d("tagg", Prefs.getPrefs("wpr_token", getActivity()));
                 Log.d("tagg", Prefs.getPrefs("crewid", getActivity()));
                 Log.d("tagg", vendor_id);
@@ -173,46 +172,6 @@ public class StartShift extends Fragment {
         });
 
     }
-
-//    public void getCurrentLocation() {
-//        LocationManager locationManager;
-//        LocationListener locationListener = new LocationListener() {
-//            @Override
-//            public void onLocationChanged(Location location) {
-////                Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
-//                latitude = String.valueOf(location.getLatitude());
-//                longitude = String.valueOf(location.getLongitude());
-////                Log.d("tagg","lat:"+latitude);
-////                Log.d("tagg","lng:"+longitude);
-//            }
-//
-//            @Override
-//            public void onStatusChanged(String provider, int status, Bundle extras) {
-//
-//            }
-//
-//            @Override
-//            public void onProviderEnabled(String provider) {
-//
-//            }
-//
-//            @Override
-//            public void onProviderDisabled(String provider) {
-//
-//            }
-//        };
-//        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-//
-//        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-//                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-//                    REQUEST_PERMISSION);
-//            return;
-//        }
-//        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-//        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-//
-//    }
 
     public void getCurrentLocation() {
         final LocationManager locationManager;

@@ -14,6 +14,8 @@ import com.example.mayankaggarwal.dcare.R;
 import com.example.mayankaggarwal.dcare.rest.Data;
 import com.example.mayankaggarwal.dcare.utils.Globals;
 import com.example.mayankaggarwal.dcare.utils.OrderAlerts;
+import com.google.android.gms.ads.formats.NativeAd;
+import com.google.android.gms.vision.text.Line;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -51,23 +53,40 @@ public class RVOrders extends RecyclerView.Adapter<RVOrders.MyViewHolder> {
         final String order_id = getNullAsEmptyString(jsonElement);
 
         if (Integer.parseInt(order_code) == Globals.ORDERSTATE_ASSIGNED) {
+            holder.item.setVisibility(View.VISIBLE);
             holder.pending.setVisibility(View.VISIBLE);
             holder.ack.setVisibility(View.GONE);
             holder.delivered.setVisibility(View.GONE);
+            holder.intrans.setVisibility(View.GONE);
             holder.ordername.setTextColor(context.getResources().getColor(R.color.themered));
             holder.line.setBackgroundColor(context.getResources().getColor(R.color.themered));
         } else if (Integer.parseInt(order_code) == Globals.ORDERSTATE_CREW_AKNOLEDGED) {
+            holder.item.setVisibility(View.VISIBLE);
             holder.pending.setVisibility(View.GONE);
             holder.ack.setVisibility(View.VISIBLE);
             holder.delivered.setVisibility(View.GONE);
+            holder.intrans.setVisibility(View.GONE);
             holder.ordername.setTextColor(context.getResources().getColor(R.color.themeblue));
             holder.line.setBackgroundColor(context.getResources().getColor(R.color.themeblue));
         } else if (Integer.parseInt(order_code) == Globals.ORDERSTATE_END_STATE_DELIVERED) {
+            holder.item.setVisibility(View.VISIBLE);
             holder.pending.setVisibility(View.GONE);
             holder.ack.setVisibility(View.GONE);
             holder.delivered.setVisibility(View.VISIBLE);
+            holder.intrans.setVisibility(View.GONE);
             holder.ordername.setTextColor(context.getResources().getColor(R.color.themegrey));
             holder.line.setBackgroundColor(context.getResources().getColor(R.color.themegrey));
+        }
+        else if (Integer.parseInt(order_code) == Globals.ORDERSTATE_IN_TRANSIT) {
+            holder.item.setVisibility(View.VISIBLE);
+            holder.pending.setVisibility(View.GONE);
+            holder.ack.setVisibility(View.GONE);
+            holder.delivered.setVisibility(View.GONE);
+            holder.intrans.setVisibility(View.VISIBLE);
+            holder.ordername.setTextColor(context.getResources().getColor(R.color.themeblue));
+            holder.line.setBackgroundColor(context.getResources().getColor(R.color.themeblue));
+        } else {
+           holder.item.setVisibility(View.GONE);
         }
 
 
@@ -79,8 +98,10 @@ public class RVOrders extends RecyclerView.Adapter<RVOrders.MyViewHolder> {
                     public void onUpdate() {
                         Log.d("tagg","success change");
                         holder.pending.setVisibility(View.GONE);
-                        holder.ack.setVisibility(View.VISIBLE);
+                        holder.ack.setVisibility(View.GONE);
                         holder.delivered.setVisibility(View.GONE);
+                        holder.intrans.setVisibility(View.VISIBLE);
+                        holder.item.setVisibility(View.VISIBLE);
                         holder.ordername.setTextColor(context.getResources().getColor(R.color.themeblue));
                         holder.line.setBackgroundColor(context.getResources().getColor(R.color.themeblue));
                     }
@@ -111,6 +132,29 @@ public class RVOrders extends RecyclerView.Adapter<RVOrders.MyViewHolder> {
             }
         });
 
+        holder.cycle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Data.changeOrderState(context, order_id, String.valueOf(Globals.ORDERSTATE_IN_TRANSIT), new Data.UpdateCallback() {
+                    @Override
+                    public void onUpdate() {
+                        Log.d("tagg","success change");
+                        holder.item.setVisibility(View.VISIBLE);
+                        holder.pending.setVisibility(View.GONE);
+                        holder.ack.setVisibility(View.VISIBLE);
+                        holder.delivered.setVisibility(View.GONE);
+                        holder.intrans.setVisibility(View.GONE);
+                        holder.ordername.setTextColor(context.getResources().getColor(R.color.themeblue));
+                        holder.line.setBackgroundColor(context.getResources().getColor(R.color.themeblue));
+                    }
+                    @Override
+                    public void onFailure() {
+                        Globals.showFailAlert(context, "Error accepting order!");
+                    }
+                });
+            }
+        });
+
     }
 
     @Override
@@ -129,8 +173,8 @@ public class RVOrders extends RecyclerView.Adapter<RVOrders.MyViewHolder> {
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
         TextView ordername, address, accept;
-        ImageView cancel, ordercart, call;
-        LinearLayout ack, pending, delivered, line;
+        ImageView cancel, ordercart, call,cycle;
+        LinearLayout ack, pending, delivered, line,item,intrans;
         public MyViewHolder(View itemView) {
             super(itemView);
             ordername = (TextView) itemView.findViewById(R.id.ordername);
@@ -143,6 +187,9 @@ public class RVOrders extends RecyclerView.Adapter<RVOrders.MyViewHolder> {
             pending = (LinearLayout) itemView.findViewById(R.id.pendinglayout);
             delivered = (LinearLayout) itemView.findViewById(R.id.confirmlayout);
             line = (LinearLayout) itemView.findViewById(R.id.line);
+            item=(LinearLayout)itemView.findViewById(R.id.itemlinearlayout);
+            intrans=(LinearLayout)itemView.findViewById(R.id.transitlayout);
+            cycle=(ImageView)itemView.findViewById(R.id.transitimage);
         }
     }
 

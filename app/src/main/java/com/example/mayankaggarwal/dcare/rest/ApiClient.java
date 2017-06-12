@@ -10,6 +10,7 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -23,15 +24,13 @@ public class ApiClient {
 
     public static Retrofit getClient(final Context context) {
 
-//        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-//        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
         String url="http://54.190.52.112";
 
-//        String url="https://vitmantra.feedveed.com";
-
             OkHttpClient ok = new OkHttpClient.Builder()
-//                    .addInterceptor(interceptor)
+                    .addInterceptor(interceptor)
                     .addInterceptor(new Interceptor() {
                         @Override
                         public Response intercept(Chain chain) throws IOException {

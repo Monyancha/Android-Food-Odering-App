@@ -8,7 +8,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:id="@+id/itemlinearlayout">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -26,7 +27,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="BIG 01"
+                    android:text=""
                     android:textColor="@color/black"
                     android:textSize="20dp"
                     android:id="@+id/ordername"
@@ -81,6 +82,25 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/transitlayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:gravity="right"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="right"
+                    android:layout_margin="10dp"
+                    android:id="@+id/transitimage"
+                    android:src="@drawable/intrans" />
+
+            </LinearLayout>
+
             <!--set visibility-->
             <LinearLayout
                 android:id="@+id/pendinglayout"
@@ -89,7 +109,7 @@
                 android:layout_gravity="right"
                 android:gravity="right"
                 android:orientation="horizontal"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -116,7 +136,7 @@
             android:id="@+id/orderaddress"
             android:layout_marginLeft="10dp"
             android:layout_marginBottom="3dp"
-            android:text="Plot 5,Sector 5, Noida"
+            android:text=""
             android:textColor="@color/dark_grey"
             android:textSize="13dp" />
 
@@ -124,7 +144,7 @@
             android:layout_width="match_parent"
             android:layout_height="2dp"
             android:id="@+id/line"
-            android:background="@color/themeblue"
+            android:background="@color/white"
             android:orientation="horizontal"/>
 
 

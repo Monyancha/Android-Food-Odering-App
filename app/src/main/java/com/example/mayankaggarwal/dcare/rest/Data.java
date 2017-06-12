@@ -626,7 +626,6 @@ public class Data {
 
             try {
                 ShiftStartResponse jsonObject = shiftResponseCall.execute().body();
-                Log.d("tagg","mmm:"+jsonObject.success);
                 if (jsonObject.success) {
                     Prefs.setPrefs("shift_id", String.valueOf(jsonObject.payload.shiftId), activity);
                     error = 0;
@@ -815,10 +814,7 @@ public class Data {
             payload.vendorId =vendor_id;
             payload.currentLatitude=lat;
             payload.currentLongitude=lng;
-            if (!(Prefs.getPrefs("last_loacal_timestamp", activity).equals("notfound"))) {
-                payload.lastLocalTimestamp = Prefs.getPrefs("last_loacal_timestamp", activity);
-            }
-
+            payload.lastLocalTimestamp = Prefs.getPrefs("last_loacal_timestamp", activity);
 
             checkShiftStartRequest.payload = payload;
 

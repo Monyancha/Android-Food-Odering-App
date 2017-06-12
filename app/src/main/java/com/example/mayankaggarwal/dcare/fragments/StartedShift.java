@@ -2,6 +2,7 @@ package com.example.mayankaggarwal.dcare.fragments;
 
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -84,9 +85,9 @@ public class StartedShift extends Fragment {
         return view;
     }
 
-    private void validateCrewShift() {
-//        if (!(Prefs.getPrefs("vendor_id_selected", getActivity()).equals("notfound")) && !(Prefs.getPrefs("shift_id", getActivity()).equals("notfound"))) {
-            Data.validateShift(getActivity(), Prefs.getPrefs("vendor_id_selected", getActivity()), Prefs.getPrefs("shift_id", getActivity()), Globals.lat, Globals.lng, new Data.UpdateCallback() {
+    private void validateCrewShift(final FragmentActivity activity, final Context context) {
+        try {
+            Data.validateShift(context, Prefs.getPrefs("vendor_id_selected", context), Prefs.getPrefs("shift_id", context), Globals.lat, Globals.lng, new Data.UpdateCallback() {
                 @Override
                 public void onUpdate() {
                     Log.d("tagg", "success validating shift");
@@ -95,14 +96,16 @@ public class StartedShift extends Fragment {
 
                 @Override
                 public void onFailure() {
-                    Prefs.setPrefs("shiftStarted", "0", getActivity());
+                    Prefs.setPrefs("shiftStarted", "0", context);
                     fragment = ShiftFragment.newInstance();
-                    FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                    FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
                     transaction.replace(R.id.frame_layout, fragment);
                     transaction.commit();
                 }
             });
-//        }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void scheduleLocalShiftAlarm(Context context) {
@@ -204,11 +207,11 @@ public class StartedShift extends Fragment {
                     Globals.lat = String.valueOf(location.getLatitude());
                     Globals.lng = String.valueOf(location.getLongitude());
                     if (Globals.validatedShift == 0) {
-                        validateCrewShift();
+                        validateCrewShift(getActivity(),getContext());
                     }
                 }
-                Log.d("tagg", "lat:" + latitude);
-                Log.d("tagg", "lng:" + longitude);
+//                Log.d("tagg", "lat:" + latitude);
+//                Log.d("tagg", "lng:" + longitude);
             }
 
             @Override

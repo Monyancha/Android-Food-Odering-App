@@ -32,6 +32,7 @@ public class AlarmReciever extends BroadcastReceiver {
             StartedShift.scheduleShiftAlarm(context);
         } else {
             if (!(Prefs.getPrefs("vendor_id_selected", context).equals("notfound")) && !(Prefs.getPrefs("shift_id", context).equals("notfound"))) {
+                /*
                 Data.shiftLive(context, Prefs.getPrefs("vendor_id_selected", context), Prefs.getPrefs("shift_id", context), new Data.UpdateCallback() {
                     @Override
                     public void onUpdate() {
@@ -42,6 +43,7 @@ public class AlarmReciever extends BroadcastReceiver {
                     public void onFailure() {
                     }
                 });
+                */
             }
             StartedShift.scheduleShiftAlarm(context);
         }

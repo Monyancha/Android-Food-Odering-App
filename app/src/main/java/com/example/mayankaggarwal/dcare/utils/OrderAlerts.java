@@ -296,7 +296,6 @@ public class OrderAlerts {
         returnspinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Log.d("tagg","w");
                 Globals.reason_id=finalReturn_reason.get(position).getAsJsonObject().get("reason_id").getAsString();
                 Globals.reason_text=finalReturn_reason.get(position).getAsJsonObject().get("reason_text").getAsString();
             }
@@ -311,7 +310,6 @@ public class OrderAlerts {
         reasons.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Log.d("tagg","w");
                 Globals.reason_id=finalCancel_Reason.get(position).getAsJsonObject().get("reason_id").getAsString();
                 Globals.reason_text=finalCancel_Reason.get(position).getAsJsonObject().get("reason_text").getAsString();
             }
@@ -325,8 +323,6 @@ public class OrderAlerts {
         continueCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                continueCancel.setBackgroundResource(R.drawable.round_shape_solid_grey);
-                continueCancel.setTextColor(activity.getResources().getColor(R.color.white));
                 sendData(activity,order_id,feedbackAlert);
             }
         });
@@ -334,8 +330,6 @@ public class OrderAlerts {
         continueDeliver.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                continueDeliver.setBackgroundResource(R.drawable.round_shape_solid_grey);
-                continueDeliver.setTextColor(activity.getResources().getColor(R.color.white));
                 sendData(activity,order_id,feedbackAlert);
             }
         });
