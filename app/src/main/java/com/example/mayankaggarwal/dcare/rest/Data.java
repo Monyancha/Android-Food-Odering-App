@@ -5,8 +5,10 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.View;
 
 import com.example.mayankaggarwal.dcare.activities.Details;
+import com.example.mayankaggarwal.dcare.adapter.RVOrders;
 import com.example.mayankaggarwal.dcare.models.AlarmApis.PayloadLiveRequest;
 import com.example.mayankaggarwal.dcare.models.AlarmApis.ShiftLiveRequest;
 import com.example.mayankaggarwal.dcare.models.Bootup.BootupRequest;
@@ -28,6 +30,7 @@ import com.example.mayankaggarwal.dcare.models.Orders.GetOrder.GetOrderRequest;
 import com.example.mayankaggarwal.dcare.models.Orders.GetOrder.PayloadOrderRequest;
 import com.example.mayankaggarwal.dcare.models.Orders.OrderState.ChangeRequest;
 import com.example.mayankaggarwal.dcare.models.Orders.OrderState.PayloadChangeRequest;
+import com.example.mayankaggarwal.dcare.models.StartEndTrip.StartTripRequest;
 import com.example.mayankaggarwal.dcare.models.StartShift.FetchVendor.PayloadShiftRequest;
 import com.example.mayankaggarwal.dcare.models.StartShift.FetchVendor.StartShiftRequest;
 import com.example.mayankaggarwal.dcare.models.StartShift.StartEndShift.PayloadRequest;
@@ -42,7 +45,15 @@ import com.example.mayankaggarwal.dcare.models.VerifyOTP.VerifyResponse;
 import com.example.mayankaggarwal.dcare.utils.Globals;
 import com.example.mayankaggarwal.dcare.utils.Prefs;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 
@@ -82,28 +93,28 @@ public class Data {
         fetchStartShift.execute(activity);
     }
 
-    public static void crewShiftStartEnd(final Activity activity,String vendor_id,String checkItems_id,String startORend,String latitude,String longitude,final UpdateCallback updateCallback) {
+    public static void crewShiftStartEnd(final Activity activity, String vendor_id, String checkItems_id, String startORend, String latitude, String longitude, final UpdateCallback updateCallback) {
         CrewShiftStart crewShiftStart = new CrewShiftStart(updateCallback, vendor_id, checkItems_id, startORend, latitude, longitude);
         crewShiftStart.execute(activity);
     }
 
-    public static void getAllOrders(final Activity activity,String vendor_id,String shift_id,final UpdateCallback updateCallback) {
-        GetAllOrders getAllOrders = new GetAllOrders(updateCallback, vendor_id,shift_id);
+    public static void getAllOrders(final Activity activity, String vendor_id, String shift_id, final UpdateCallback updateCallback) {
+        GetAllOrders getAllOrders = new GetAllOrders(updateCallback, vendor_id, shift_id);
         getAllOrders.execute(activity);
     }
 
-    public static void shiftLive(final Context activity,String vendor_id,String shift_id,final UpdateCallback updateCallback) {
-        ShiftLive shiftLive = new ShiftLive(updateCallback, vendor_id,shift_id);
+    public static void shiftLive(final Context activity, String vendor_id, String shift_id, final UpdateCallback updateCallback) {
+        ShiftLive shiftLive = new ShiftLive(updateCallback, vendor_id, shift_id);
         shiftLive.execute(activity);
     }
 
-    public static void validateShift(final Context activity,String vendor_id,String shift_id,String lat,String lng,final UpdateCallback updateCallback) {
-        ValidateShift validateShift= new ValidateShift(updateCallback, vendor_id,shift_id,lat,lng);
+    public static void validateShift(final Context activity, String vendor_id, String shift_id, String lat, String lng, final UpdateCallback updateCallback) {
+        ValidateShift validateShift = new ValidateShift(updateCallback, vendor_id, shift_id, lat, lng);
         validateShift.execute(activity);
     }
 
-    public static void changeOrderState(final Context activity,String order_id,String state_code,final UpdateCallback updateCallback) {
-        ChangeState changeState= new ChangeState(updateCallback, order_id,state_code);
+    public static void changeOrderState(final Context activity, String order_id, String state_code, final UpdateCallback updateCallback) {
+        ChangeState changeState = new ChangeState(updateCallback, order_id, state_code);
         changeState.execute(activity);
     }
 
@@ -112,6 +123,10 @@ public class Data {
         getReasons.execute(activity);
     }
 
+    public static void crewTrip(final Activity activity, String op, final UpdateCallback updateCallback) {
+        CrewTrip crewTrip = new CrewTrip(updateCallback, op);
+        crewTrip.execute(activity);
+    }
 
 
     public static void internetConnection(final UpdateCallback updateCallback) {
@@ -582,7 +597,7 @@ public class Data {
 
         UpdateCallback updateCallback;
         int error = 0;
-        String vendor_id, checkItems_id, startORend, latitude,longitude;
+        String vendor_id, checkItems_id, startORend, latitude, longitude;
 
         public CrewShiftStart(UpdateCallback updateCallback, String vendor_id, String checkItems_id, String startORend, String latitude, String longitude) {
             this.updateCallback = updateCallback;
@@ -602,12 +617,12 @@ public class Data {
 
             PayloadRequest payload = new PayloadRequest();
 
-            payload.activityList =checkItems_id;
-            payload.comments ="valid values can be only start and end for operation";
-            payload.currentLatitude =latitude;
-            payload.currentLongitude =longitude;
-            payload.operation =startORend;
-            payload.vendorId =vendor_id;
+            payload.activityList = checkItems_id;
+            payload.comments = "valid values can be only start and end for operation";
+            payload.currentLatitude = latitude;
+            payload.currentLongitude = longitude;
+            payload.operation = startORend;
+            payload.vendorId = vendor_id;
 
             startShiftRequest.payload = payload;
 
@@ -672,8 +687,8 @@ public class Data {
 
             PayloadOrderRequest payload = new PayloadOrderRequest();
 
-            payload.shiftId =shift_id;
-            payload.vendorId =vendor_id;
+            payload.shiftId = shift_id;
+            payload.vendorId = vendor_id;
 
             getOrderRequest.payload = payload;
 
@@ -693,7 +708,7 @@ public class Data {
             try {
                 JsonObject jsonObject = orderResponseCall.execute().body();
                 if (jsonObject.get("success").getAsBoolean()) {
-                    Prefs.setPrefs("orderJson",jsonObject.toString(), activity);
+                    Prefs.setPrefs("orderJson", jsonObject.toString(), activity);
                     error = 0;
                 } else {
                     Globals.errorRes = jsonObject.get("error").getAsJsonObject().get("message").getAsString();
@@ -738,11 +753,11 @@ public class Data {
 
             PayloadLiveRequest payload = new PayloadLiveRequest();
 
-            payload.shiftId =shift_id;
-            payload.vendorId =vendor_id;
+            payload.shiftId = shift_id;
+            payload.vendorId = vendor_id;
             payload.timestamp = String.valueOf((int) System.currentTimeMillis() / 1000);
 
-            Prefs.setPrefs("last_loacal_timestamp",payload.timestamp,activity);
+            Prefs.setPrefs("last_loacal_timestamp", payload.timestamp, activity);
 
             shiftLiveRequest.payload = payload;
 
@@ -793,12 +808,12 @@ public class Data {
         String vendor_id, shift_id;
         String lat, lng;
 
-        public ValidateShift(UpdateCallback updateCallback, String vendor_id, String shift_id,String lat,String lng) {
+        public ValidateShift(UpdateCallback updateCallback, String vendor_id, String shift_id, String lat, String lng) {
             this.updateCallback = updateCallback;
             this.vendor_id = vendor_id;
             this.shift_id = shift_id;
-            this.lat=lat;
-            this.lng=lng;
+            this.lat = lat;
+            this.lng = lng;
         }
 
         @Override
@@ -810,10 +825,10 @@ public class Data {
 
             PayloadCheckShift payload = new PayloadCheckShift();
 
-            payload.shiftId =shift_id;
-            payload.vendorId =vendor_id;
-            payload.currentLatitude=lat;
-            payload.currentLongitude=lng;
+            payload.shiftId = shift_id;
+            payload.vendorId = vendor_id;
+            payload.currentLatitude = lat;
+            payload.currentLongitude = lng;
             payload.lastLocalTimestamp = Prefs.getPrefs("last_loacal_timestamp", activity);
 
             checkShiftStartRequest.payload = payload;
@@ -865,10 +880,10 @@ public class Data {
         String order_id;
         String state_code;
 
-        public ChangeState(UpdateCallback updateCallback, String order_id,String state_code) {
+        public ChangeState(UpdateCallback updateCallback, String order_id, String state_code) {
             this.updateCallback = updateCallback;
             this.order_id = order_id;
-            this.state_code=state_code;
+            this.state_code = state_code;
         }
 
         @Override
@@ -880,15 +895,18 @@ public class Data {
 
             PayloadChangeRequest payload = new PayloadChangeRequest();
 
-            payload.orderId =order_id;
-            payload.vendorId =Prefs.getPrefs("vendor_id_selected", activity);
-            payload.custRating=Globals.star_Rating;
-            payload.reasonCode=Globals.reason_id;
-            payload.reasonText=Globals.reason_text;
-            payload.actualDeliveryTime=String.valueOf((int) System.currentTimeMillis() / 1000);;
-            payload.crewPickupTime=String.valueOf((int) System.currentTimeMillis() / 1000);;
-            payload.estimatedDeliveryTime=String.valueOf((int) System.currentTimeMillis() / 1000);;
-            payload.newStateCode=state_code;
+            payload.orderId = order_id;
+            payload.vendorId = Prefs.getPrefs("vendor_id_selected", activity);
+            payload.custRating = Globals.star_Rating;
+            payload.reasonCode = Globals.reason_id;
+            payload.reasonText = Globals.reason_text;
+            payload.actualDeliveryTime = String.valueOf((int) System.currentTimeMillis() / 1000);
+            ;
+            payload.crewPickupTime = String.valueOf((int) System.currentTimeMillis() / 1000);
+            ;
+            payload.estimatedDeliveryTime = String.valueOf((int) System.currentTimeMillis() / 1000);
+            ;
+            payload.newStateCode = state_code;
 
             changeRequest.payload = payload;
 
@@ -991,6 +1009,96 @@ public class Data {
         }
     }
 
+
+    public static class CrewTrip extends AsyncTask<Activity, Void, Integer> {
+
+        UpdateCallback updateCallback;
+        String operation;
+        int error = 0;
+
+        public CrewTrip(UpdateCallback updateCallback, String operation) {
+            this.updateCallback = updateCallback;
+            this.operation = operation;
+        }
+
+        @Override
+        protected Integer doInBackground(Activity... params) {
+            final Activity activity = params[0];
+
+            ApiInterface apiInterface = new ApiClient().getClient(activity).create(ApiInterface.class);
+            StartTripRequest startTripRequest = new StartTripRequest();
+
+            JsonObject payload = new JsonObject();
+            payload.addProperty("operation",operation);
+            payload.addProperty("current_latitude",Globals.lat);
+            payload.addProperty("current_longitude",Globals.lng);
+            payload.addProperty("shift_id",Prefs.getPrefs("shift_id", activity));
+            payload.addProperty("trip_id",Prefs.getPrefs("trip_id", activity));
+            payload.addProperty("vendor_id",Prefs.getPrefs("vendor_id_selected", activity));
+
+            JsonArray orderInfo=new JsonArray();
+            if (!(Prefs.getPrefs("orderJson", activity)).equals("notfound")) {
+                JsonParser jsonParser = new JsonParser();
+                JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", activity)).getAsJsonObject();
+                JsonArray orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
+                for (int i = 0; i < orderArray.size(); i++) {
+                    final JsonObject orderObject = orderArray.get(i).getAsJsonObject().get("order").getAsJsonObject();
+                    String order_code = orderObject.get("order_last_state_code").getAsString();
+                    if (Integer.parseInt(order_code) == Globals.ORDERSTATE_IN_TRANSIT) {
+                        JsonObject order = new JsonObject();
+                        order.addProperty("estimated_delivery_time","-1");
+                        order.addProperty("order_id",orderObject.get("order_id").getAsString());
+                        order.addProperty("new_order_state_code","7");
+                        orderInfo.add(order);
+                    }
+                }
+            }
+
+            payload.add("order_info",orderInfo);
+
+            startTripRequest.payload = payload;
+
+            Prefs.setPrefs("order_info",payload.toString(),activity);
+
+            HeaderMediaRequest header = new HeaderMediaRequest();
+            header.requestId = Globals.randomAlphaNumeric(10);
+            header.appVersion = Globals.appVersion;
+            if (!(Prefs.getPrefs("crewid", activity).equals("notfound"))) {
+                header.crewId = Prefs.getPrefs("crewid", activity);
+            }
+            if (!(Prefs.getPrefs("wpr_token", activity).equals("notfound"))) {
+                header.wprToken = Prefs.getPrefs("wpr_token", activity);
+            }
+            startTripRequest.header = header;
+
+            final Call<JsonObject> shiftResponseCall = apiInterface.crewtrip(startTripRequest);
+
+            try {
+                JsonObject jsonObject = shiftResponseCall.execute().body();
+                if (jsonObject.get("success").getAsBoolean()) {
+                    Prefs.setPrefs("trip_id", jsonObject.get("payload").getAsJsonObject().get("trip_id").getAsString(), activity);
+                    error = 0;
+                } else {
+                    Globals.errorRes = jsonObject.get("error").getAsJsonObject().get("message").getAsString();
+                    error = 1;
+                }
+            } catch (Exception e) {
+                error = 1;
+                Globals.errorRes = "No Internet Connection!";
+                e.printStackTrace();
+            }
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            if (error == 0) {
+                updateCallback.onUpdate();
+            } else {
+                updateCallback.onFailure();
+            }
+        }
+    }
 
 
     public static class InternetConnection extends AsyncTask<Void, Void, Boolean> {

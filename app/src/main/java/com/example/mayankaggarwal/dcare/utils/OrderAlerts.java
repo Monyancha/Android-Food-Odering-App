@@ -336,19 +336,30 @@ public class OrderAlerts {
 
         builder.setView(view);
         feedbackAlert = builder.create();
-        feedbackAlert.setCancelable(false);
+        feedbackAlert.setCancelable(true);
         feedbackAlert.show();
         if (activity.isDestroyed() || activity.isFinishing()) {
             feedbackAlert.dismiss();
         }
     }
 
-    public static void sendData(final Activity activity, String order_id, final AlertDialog feedbackAlert) {
+    public static void sendData(final Activity activity, final String order_id, final AlertDialog feedbackAlert) {
         Data.changeOrderState(activity, order_id, String.valueOf(Globals.state_code_return_or_cancel_or_delivered), new Data.UpdateCallback() {
             @Override
             public void onUpdate() {
                 feedbackAlert.dismiss();
                 getOrder(activity);
+
+                JsonParser parser=new JsonParser();
+                JsonArray jsonArray=parser.parse(Prefs.getPrefs("order_info",activity)).getAsJsonObject().get("order_info").getAsJsonArray();
+                for(int i=0;i<jsonArray.size();i++){
+                    JsonObject ob=jsonArray.get(i).getAsJsonObject();
+                    if(ob.get("order_id").getAsString().equals(order_id)){
+                        ob.remove("new_order_state_code");
+                        ob.addProperty("new_order_state_code", Globals.state_code_return_or_cancel_or_delivered);
+                    }
+                }
+                Prefs.setPrefs("order_info",jsonArray.toString(),activity);
             }
 
             @Override

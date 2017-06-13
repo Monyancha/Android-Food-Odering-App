@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 
 import com.example.mayankaggarwal.dcare.R;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 
 

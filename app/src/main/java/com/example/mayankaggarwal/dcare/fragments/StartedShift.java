@@ -75,7 +75,32 @@ public class StartedShift extends Fragment {
         }
         scheduleShiftAlarm(getActivity());
         scheduleLocalShiftAlarm(getActivity());
-        getOrder();
+        if(Globals.orderFetch==0){
+            getOrder(getContext(),getActivity());
+        }else {
+            try {
+                if (!(Prefs.getPrefs("orderJson", getContext())).equals("notfound")) {
+                    int ack = 0, pending = 0;
+                    JsonParser jsonParser = new JsonParser();
+                    JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", getContext())).getAsJsonObject();
+                    JsonArray orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
+                    for (int i = 0; i < orderArray.size(); i++) {
+                        JsonObject orderObject = orderArray.get(i).getAsJsonObject().get("order").getAsJsonObject();
+                        String order_code = orderObject.get("order_last_state_code").getAsString();
+                        if (Integer.parseInt(order_code) == Globals.ORDERSTATE_ASSIGNED) {
+                            pending++;
+                        } else if (Integer.parseInt(order_code) == Globals.ORDERSTATE_CREW_AKNOLEDGED) {
+                            ack++;
+                        }
+                    }
+                    orderack.setText(String.valueOf(ack));
+                    orderpending.setText(String.valueOf(pending));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         setListener();
         Log.d("tagg", Prefs.getPrefs("vendor_id_selected", getActivity()));
         Log.d("tagg", Prefs.getPrefs("wpr_token", getActivity()));
@@ -97,6 +122,8 @@ public class StartedShift extends Fragment {
                 @Override
                 public void onFailure() {
                     Prefs.setPrefs("shiftStarted", "0", context);
+                    Prefs.setPrefs("trip_started", "0", context);
+
                     fragment = ShiftFragment.newInstance();
                     FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
                     transaction.replace(R.id.frame_layout, fragment);
@@ -154,6 +181,7 @@ public class StartedShift extends Fragment {
                     @Override
                     public void onUpdate() {
                         Prefs.setPrefs("shiftStarted", "0", getActivity());
+                        Prefs.setPrefs("trip_started", "0", getActivity());
                         fragment = ShiftFragment.newInstance();
                         FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
                         transaction.replace(R.id.frame_layout, fragment);
@@ -234,17 +262,17 @@ public class StartedShift extends Fragment {
 
     }
 
-    public void getOrder() {
-        if (!(Prefs.getPrefs("vendor_id_selected", getActivity()).equals("notfound")) && !(Prefs.getPrefs("shift_id", getActivity()).equals("notfound"))) {
-            Data.getAllOrders(getActivity(), Prefs.getPrefs("vendor_id_selected", getActivity()), Prefs.getPrefs("shift_id", getActivity()), new Data.UpdateCallback() {
+    public void getOrder(final Context context,final Activity activity) {
+        if (!(Prefs.getPrefs("vendor_id_selected", context).equals("notfound")) && !(Prefs.getPrefs("shift_id", context).equals("notfound"))) {
+            Data.getAllOrders(activity, Prefs.getPrefs("vendor_id_selected", context), Prefs.getPrefs("shift_id", context), new Data.UpdateCallback() {
                 @Override
                 public void onUpdate() {
                     Log.d("tagg", "success order");
                     try {
-                        if (!(Prefs.getPrefs("orderJson", getActivity())).equals("notfound")) {
+                        if (!(Prefs.getPrefs("orderJson", context)).equals("notfound")) {
                             int ack = 0, pending = 0;
                             JsonParser jsonParser = new JsonParser();
-                            JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", getActivity())).getAsJsonObject();
+                            JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", context)).getAsJsonObject();
                             JsonArray orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
                             for (int i = 0; i < orderArray.size(); i++) {
                                 JsonObject orderObject = orderArray.get(i).getAsJsonObject().get("order").getAsJsonObject();

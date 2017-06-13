@@ -43,7 +43,7 @@
                 android:layout_gravity="right"
                 android:gravity="right"
                 android:orientation="horizontal"
-                android:visibility="gone">
+                android:visibility="visible">
 
                 <ImageView
                     android:layout_width="30dp"

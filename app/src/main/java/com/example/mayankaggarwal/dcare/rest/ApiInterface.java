@@ -12,6 +12,7 @@ import com.example.mayankaggarwal.dcare.models.GetOTP.OtpRequest;
 import com.example.mayankaggarwal.dcare.models.GetOTP.OtpResponse;
 import com.example.mayankaggarwal.dcare.models.Orders.GetOrder.GetOrderRequest;
 import com.example.mayankaggarwal.dcare.models.Orders.OrderState.ChangeRequest;
+import com.example.mayankaggarwal.dcare.models.StartEndTrip.StartTripRequest;
 import com.example.mayankaggarwal.dcare.models.StartShift.FetchVendor.StartShiftRequest;
 import com.example.mayankaggarwal.dcare.models.StartShift.StartEndShift.ShiftStartRequest;
 import com.example.mayankaggarwal.dcare.models.StartShift.StartEndShift.ShiftStartResponse;
@@ -65,6 +66,9 @@ public interface ApiInterface {
 
     @POST("getreasons")
     Call<JsonObject> getreasons(@Body StartShiftRequest startShiftRequest);
+
+    @POST("crewtrip")
+    Call<JsonObject> crewtrip(@Body StartTripRequest startTripRequest);
 
 //    @GET("faculties.json")
 //    Call<FacultiesData> getFaculties();
