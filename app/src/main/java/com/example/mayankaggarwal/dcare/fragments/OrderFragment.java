@@ -186,24 +186,36 @@ public class OrderFragment extends Fragment {
         }
     }
 
-    private static void checkForNullLatLng(Activity activity, JsonArray orderArray) {
+    private static void checkForNullLatLng(final Activity activity, JsonArray orderArray) {
         for (int i = 0; i < orderArray.size(); i++) {
-            JsonObject orderObject = orderArray.get(i).getAsJsonObject().get("pickup_address").getAsJsonObject();
-            String add_location_lat = orderObject.get("add_location_lat").getAsString();
-            String add_location_long = orderObject.get("add_location_long").getAsString();
-            if (add_location_long.equals(null) || add_location_lat.equals(null) || add_location_long.equals("null") || add_location_lat.equals("null")) {
+            JsonObject orderObject = orderArray.get(i).getAsJsonObject().get("drop_address").getAsJsonObject();
+            Boolean add_location_lat = orderObject.get("add_location_lat").isJsonNull();
+            Boolean add_location_long = orderObject.get("add_location_long").isJsonNull();
+            if (add_location_lat || add_location_long) {
                 JsonObject dropObject = orderArray.get(i).getAsJsonObject().get("drop_address").getAsJsonObject();
                 String google_string = Globals.getDropAddress(dropObject);
                 Log.d("tagg",google_string);
-                Data.googleLatLngApi(activity, google_string, new Data.UpdateCallback() {
+                Data.googleLatLngApi(activity, google_string.replace(" ","+"), new Data.UpdateCallback() {
                     @Override
                     public void onUpdate() {
+                        Data.updatelatlng(activity, new Data.UpdateCallback() {
+                            @Override
+                            public void onUpdate() {
+                                //success
+                            }
 
+                            @Override
+                            public void onFailure() {
+                                //fail
+                            }
+                        });
                     }
-
                     @Override
                     public void onFailure() {
                            //nothing
+                        Globals.googleLat=null;
+                        Globals.googleLng=null;
+                        Globals.place_id=null;
                     }
                 });
             }

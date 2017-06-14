@@ -111,6 +111,10 @@ public class Globals {
 
     public static String google_address_string = null;
     public static String drop_address_string = null;
+    public static String googleLat=null;
+    public static String googleLng=null;
+    public static String address_id=null;
+    public static String place_id=null;
 
 
     public static String getDropAddress(JsonObject dropaddress) {
@@ -123,9 +127,10 @@ public class Globals {
         String postal_code = getNullAsEmptyString("postal_code", dropaddress);
         String country_code = getNullAsEmptyString("country_code", dropaddress);
         google_address_string=complex_name+" "+street_name+" "+city+" "+state+" "+postal_code+" "+country_code;
+        google_address_string=google_address_string.replace(" ","+");
         drop_address_string=house_number+" "+complex_name+" "+street_name+" "+city+" "+state+" "+postal_code+" "+country_code;
 
-        return complex_name+" "+street_name+" "+city+" "+state+" "+postal_code+" "+country_code;
+        return google_address_string;
 }
 
     private static String getNullAsEmptyString(String s, JsonObject drop) {

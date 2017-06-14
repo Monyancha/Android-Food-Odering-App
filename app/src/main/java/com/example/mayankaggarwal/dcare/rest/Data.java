@@ -138,6 +138,11 @@ public class Data {
         googleLatLng.execute(activity);
     }
 
+    public static void updatelatlng(final Activity activity, final UpdateCallback updateCallback) {
+        UpdateLatLng updateLatLng = new UpdateLatLng(updateCallback);
+        updateLatLng.execute(activity);
+    }
+
 
     public static void internetConnection(final UpdateCallback updateCallback) {
         InternetConnection intenetConnection = new InternetConnection(updateCallback);
@@ -1136,6 +1141,8 @@ public class Data {
             client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(okhttp3.Call call, IOException e) {
+                    Globals.googleLat=null;
+                    Globals.googleLng=null;
                     error=1;
                     call.cancel();
                 }
@@ -1144,14 +1151,88 @@ public class Data {
                 public void onResponse(okhttp3.Call call, Response response) throws IOException {
                     try {
                         error=0;
-                        Log.d("tagg",response.body().toString());
+                        String res=response.body().string();
+                        JsonParser jsonParser=new JsonParser();
+                        JsonObject jsonObject=jsonParser.parse(res).getAsJsonObject();
+                        if(jsonObject.get("status").getAsString().toLowerCase().equals("ok")){
+                            JsonObject loc=jsonObject.get("results").getAsJsonArray().get(0).getAsJsonObject().get("geometry").getAsJsonObject().get("location").getAsJsonObject();
+                            Globals.googleLat=loc.get("lat").getAsString();
+                            Globals.googleLng=loc.get("lng").getAsString();
+                            Globals.place_id=jsonObject.get("results").getAsJsonArray().get(0).getAsJsonObject().get("place_id").getAsString();
+                        }else {
+                            Globals.googleLat=null;
+                            Globals.googleLng=null;
+                            Globals.place_id=null;
+                        }
                     }catch (Exception e){
+                        Globals.googleLat=null;
+                        Globals.googleLng=null;
+                        Globals.place_id=null;
                         error=1;
                         e.printStackTrace();
                     }
                 }
             });
 
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            if (error == 0) {
+                updateCallback.onUpdate();
+            } else {
+                updateCallback.onFailure();
+            }
+        }
+    }
+
+
+    public static class UpdateLatLng extends AsyncTask<Activity, Void, Integer> {
+
+        UpdateCallback updateCallback;
+        int error = 0;
+
+        public UpdateLatLng(UpdateCallback updateCallback) {
+            this.updateCallback = updateCallback;
+        }
+
+        @Override
+        protected Integer doInBackground(Activity... params) {
+            final Activity activity = params[0];
+
+            ApiInterface apiInterface = new ApiClient().getClient(activity).create(ApiInterface.class);
+            StartTripRequest startTripRequest = new StartTripRequest();
+
+            JsonObject payload = new JsonObject();
+            payload.addProperty("source","mb");
+            payload.addProperty("place_id",Globals.place_id);
+            payload.addProperty("address_id",Globals.address_id);
+            payload.addProperty("lat",Globals.googleLat);
+            payload.addProperty("long",Globals.googleLng);
+
+            startTripRequest.payload = payload;
+
+            HeaderMediaRequest header = new HeaderMediaRequest();
+            header.requestId = Globals.randomAlphaNumeric(10);
+            header.appVersion = Globals.appVersion;
+            if (!(Prefs.getPrefs("crewid", activity).equals("notfound"))) {
+                header.crewId = Prefs.getPrefs("crewid", activity);
+            }
+            if (!(Prefs.getPrefs("wpr_token", activity).equals("notfound"))) {
+                header.wprToken = Prefs.getPrefs("wpr_token", activity);
+            }
+            startTripRequest.header = header;
+
+            final Call<JsonObject> shiftResponseCall = apiInterface.updatelatlong(startTripRequest);
+
+            try {
+                JsonObject jsonObject = shiftResponseCall.execute().body();
+
+            } catch (Exception e) {
+                error = 1;
+                e.printStackTrace();
+            }
             return 0;
         }
 

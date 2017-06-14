@@ -70,6 +70,9 @@ public interface ApiInterface {
     @POST("crewtrip")
     Call<JsonObject> crewtrip(@Body StartTripRequest startTripRequest);
 
+    @POST("updatelatlong")
+    Call<JsonObject> updatelatlong(@Body StartTripRequest startTripRequest);
+
 //    @GET("faculties.json")
 //    Call<FacultiesData> getFaculties();
 
