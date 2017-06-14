@@ -23,6 +23,9 @@ public class PayloadResponse {
     @SerializedName("location_refresh_frequency_rate")
     @Expose
     public String locationRefreshFrequencyRate;
+    @SerializedName("salt_key")
+    @Expose
+    public String salt_key;
     @SerializedName("crew_state")
     @Expose
     public String crewState;

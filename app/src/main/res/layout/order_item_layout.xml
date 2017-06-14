@@ -58,6 +58,14 @@
                     android:layout_height="25dp"
                     android:layout_gravity="right"
                     android:layout_margin="10dp"
+                    android:id="@+id/callcancel"
+                    android:src="@drawable/cancelorder" />
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_gravity="right"
+                    android:layout_margin="10dp"
                     android:id="@+id/call"
                     android:src="@drawable/call" />
             </LinearLayout>
@@ -90,6 +98,14 @@
                 android:gravity="right"
                 android:orientation="horizontal"
                 android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_gravity="right"
+                    android:layout_margin="10dp"
+                    android:id="@+id/transitcancel"
+                    android:src="@drawable/cancelorder" />
 
                 <ImageView
                     android:layout_width="30dp"

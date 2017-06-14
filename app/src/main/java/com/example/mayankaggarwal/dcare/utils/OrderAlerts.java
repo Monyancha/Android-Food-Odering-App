@@ -33,7 +33,7 @@ public class OrderAlerts {
     private static AlertDialog declineAlert;
     private static AlertDialog feedbackAlert;
 
-    public static void showDeclineOrderAlert(final Activity activity) {
+    public static void showDeclineOrderAlert(final Activity activity, final Context context, final String order_id, final int orderstateTo, final String orderstateFrom, final int position) {
 
         final Button yes, no;
 
@@ -52,7 +52,21 @@ public class OrderAlerts {
         yes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                doVisuallyFromTo(context,activity,order_id,orderstateTo,orderstateFrom,position);
                 declineAlert.dismiss();
+                Data.changeOrderState(context, order_id, String.valueOf(orderstateTo), new Data.UpdateCallback() {
+                    @Override
+                    public void onUpdate() {
+//                        getOrder(context,activity);
+                        OrderFragment.getOrder(activity,activity);
+                    }
+
+                    @Override
+                    public void onFailure() {
+                        doVisuallyToFrom(context,activity,order_id,orderstateTo,orderstateFrom,position);
+                        Globals.showFailAlert(activity, "Error cancelling order!");
+                    }
+                });
             }
         });
 
@@ -98,6 +112,7 @@ public class OrderAlerts {
             declineAlert.dismiss();
         }
     }
+
 
     public static void showfeedbackAlert(final Activity activity,final String order_id) {
 
@@ -348,7 +363,8 @@ public class OrderAlerts {
             @Override
             public void onUpdate() {
                 feedbackAlert.dismiss();
-                getOrder(activity);
+
+                OrderFragment.getOrder(activity,activity);
 
                 JsonParser parser=new JsonParser();
                 JsonArray jsonArray=parser.parse(Prefs.getPrefs("order_info",activity)).getAsJsonObject().get("order_info").getAsJsonArray();
@@ -372,30 +388,30 @@ public class OrderAlerts {
 
     }
 
-    public static void getOrder(final Activity activity) {
-        if (!(Prefs.getPrefs("vendor_id_selected", activity).equals("notfound")) && !(Prefs.getPrefs("shift_id", activity).equals("notfound"))) {
-            Data.getAllOrders(activity, Prefs.getPrefs("vendor_id_selected", activity), Prefs.getPrefs("shift_id", activity), new Data.UpdateCallback() {
-                @Override
-                public void onUpdate() {
-                    Log.d("tagg", "success");
-                    try {
-                        if (!(Prefs.getPrefs("orderJson", activity)).equals("notfound")) {
-                            JsonParser jsonParser = new JsonParser();
-                            JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", activity)).getAsJsonObject();
-                            JsonArray orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
-                            OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray));
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                @Override
-                public void onFailure() {
-                    Globals.showFailAlert(activity, "Error fetching orders!");
-                }
-            });
-        }
-    }
+//    public static void getOrder(final Activity activity) {
+//        if (!(Prefs.getPrefs("vendor_id_selected", activity).equals("notfound")) && !(Prefs.getPrefs("shift_id", activity).equals("notfound"))) {
+//            Data.getAllOrders(activity, Prefs.getPrefs("vendor_id_selected", activity), Prefs.getPrefs("shift_id", activity), new Data.UpdateCallback() {
+//                @Override
+//                public void onUpdate() {
+//                    Log.d("tagg", "success");
+//                    try {
+//                        if (!(Prefs.getPrefs("orderJson", activity)).equals("notfound")) {
+//                            JsonParser jsonParser = new JsonParser();
+//                            JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", activity)).getAsJsonObject();
+//                            JsonArray orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
+//                            OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray));
+//                        }
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//                @Override
+//                public void onFailure() {
+//                    Globals.showFailAlert(activity, "Error fetching orders!");
+//                }
+//            });
+//        }
+//    }
 
     public static void setStarPattern(final ImageView starone, final ImageView startwo, final ImageView starthree, final ImageView starfour, final ImageView starfive) {
 
@@ -499,6 +515,70 @@ public class OrderAlerts {
         } else if (string.equals("returned")) {
             returned.setBackgroundResource(R.drawable.round_shape_solid_grey);
             returned.setTextColor(activity.getResources().getColor(R.color.white));
+        }
+    }
+//
+//    public static void getOrder(final Context context, final Activity activity) {
+//        if (!(Prefs.getPrefs("vendor_id_selected", context).equals("notfound")) && !(Prefs.getPrefs("shift_id", context).equals("notfound"))) {
+//            Data.getAllOrders(activity, Prefs.getPrefs("vendor_id_selected", context), Prefs.getPrefs("shift_id", context), new Data.UpdateCallback() {
+//                @Override
+//                public void onUpdate() {
+//                    Log.d("tagg", "success");
+//                    try {
+//                        if (!(Prefs.getPrefs("orderJson", context)).equals("notfound")) {
+//                            JsonParser jsonParser = new JsonParser();
+//                            JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", context)).getAsJsonObject();
+//                            JsonArray orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
+//                            OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray));
+//                        }
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//
+//                @Override
+//                public void onFailure() {
+//                    Globals.showFailAlert(activity, "Error fetching orders!");
+//                }
+//            });
+//        }
+//    }
+
+    private static void doVisuallyFromTo(Context context, Activity activity, String order_id, int orderstateTo, String orderstateFrom, int position) {
+        if (!(Prefs.getPrefs("orderJson", context)).equals("notfound")) {
+            JsonParser jsonParser = new JsonParser();
+            JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", context)).getAsJsonObject();
+
+            JsonArray orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
+            JsonObject orderObject = orderArray.get(position).getAsJsonObject().get("order").getAsJsonObject();
+            String order_code = orderObject.get("order_last_state_code").getAsString();
+
+            orderObject.remove("order_last_state_code");
+            orderObject.addProperty("order_last_state_code", String.valueOf(orderstateTo));
+            Prefs.setPrefs("orderJson", ob.toString(), context);
+
+            ob = jsonParser.parse(Prefs.getPrefs("orderJson", activity)).getAsJsonObject();
+            orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
+            OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray));
+        }
+    }
+
+    private static void doVisuallyToFrom(Context context, Activity activity, String order_id, int orderstateTo, String orderstateFrom, int position) {
+        if (!(Prefs.getPrefs("orderJson", context)).equals("notfound")) {
+            JsonParser jsonParser = new JsonParser();
+            JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", context)).getAsJsonObject();
+
+            JsonArray orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
+            JsonObject orderObject = orderArray.get(position).getAsJsonObject().get("order").getAsJsonObject();
+            String order_code = orderObject.get("order_last_state_code").getAsString();
+
+            orderObject.remove("order_last_state_code");
+            orderObject.addProperty("order_last_state_code", String.valueOf(orderstateFrom));
+            Prefs.setPrefs("orderJson", ob.toString(), context);
+
+            ob = jsonParser.parse(Prefs.getPrefs("orderJson", activity)).getAsJsonObject();
+            orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
+            OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray));
         }
     }
 

@@ -2,6 +2,7 @@ package com.example.mayankaggarwal.dcare.fragments;
 
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -50,6 +51,8 @@ public class StartShift extends Fragment {
     private String latitude;
     private String longitude;
     private static final int REQUEST_PERMISSION = 1;
+    Activity activity;
+    Context context;
 
 
     public static StartShift newInstance() {
@@ -67,6 +70,8 @@ public class StartShift extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_start_shift, container, false);
+        activity=getActivity();
+        context=getContext();
         getCurrentLocation();
         proceed = (Button) view.findViewById(R.id.proceedbutton);
         rememberBox = (CheckBox) view.findViewById(R.id.remember);
@@ -89,7 +94,7 @@ public class StartShift extends Fragment {
 
             @Override
             public void onFailure() {
-                Globals.showFailAlert(getActivity(), "Error fetching");
+                Globals.showFailAlert(activity, "Error fetching");
             }
         });
     }
@@ -125,21 +130,21 @@ public class StartShift extends Fragment {
                         checkItems_id = checkItems_id + "," + RVCheckItems.checkedItems.get(i);
                     }
                 }
-                Log.d("tagg", Prefs.getPrefs("wpr_token", getActivity()));
-                Log.d("tagg", Prefs.getPrefs("crewid", getActivity()));
-                Log.d("tagg", vendor_id);
-                Log.d("tagg", checkItems_id);
+//                Log.d("tagg", Prefs.getPrefs("wpr_token", context));
+//                Log.d("tagg", Prefs.getPrefs("crewid", context));
+//                Log.d("tagg", vendor_id);
+//                Log.d("tagg", checkItems_id);
 
                 if (vendor_id != null && checkItems_id != null) {
                     final String finalCheckItems_id = checkItems_id;
                     if(Globals.lat!=null && Globals.lng!=null){
-                        Data.crewShiftStartEnd(getActivity(), vendor_id, checkItems_id, "start", Globals.lat, Globals.lng, new Data.UpdateCallback() {
+                        Data.crewShiftStartEnd(activity, vendor_id, checkItems_id, "start", Globals.lat, Globals.lng, new Data.UpdateCallback() {
                             @Override
                             public void onUpdate() {
-                                Prefs.setPrefs("shiftStarted", "1", getActivity());
-                                Prefs.setPrefs("vendor_id_selected", vendor_id, getActivity());
-                                Prefs.setPrefs("vendor_id_name", RVStartShift.vendor_name, getActivity());
-                                Prefs.setPrefs("activity_list_selected", finalCheckItems_id, getActivity());
+                                Prefs.setPrefs("shiftStarted", "1", context);
+                                Prefs.setPrefs("vendor_id_selected", vendor_id, context);
+                                Prefs.setPrefs("vendor_id_name", RVStartShift.vendor_name, context);
+                                Prefs.setPrefs("activity_list_selected", finalCheckItems_id, context);
                                 fragment = StartedShift.newInstance();
                                 FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
                                 transaction.replace(R.id.frame_layout, fragment);
@@ -147,12 +152,12 @@ public class StartShift extends Fragment {
                             }
                             @Override
                             public void onFailure() {
-                                Globals.showFailAlert(getActivity(), "Error Starting Shift!");
+                                Globals.showFailAlert(activity, "Error Starting Shift!");
                             }
                         });
                     }else {
                         Globals.errorRes="Not able to fetch location";
-                        Globals.showFailAlert(getActivity(), "Error Starting Shift!");
+                        Globals.showFailAlert(activity, "Error Starting Shift!");
                     }
                 }
 
@@ -164,9 +169,9 @@ public class StartShift extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
-                    Prefs.setPrefs("remember_default","1",getActivity());
+                    Prefs.setPrefs("remember_default","1",context);
                 }else {
-                    Prefs.setPrefs("remember_default","0",getActivity());
+                    Prefs.setPrefs("remember_default","0",context);
                 }
             }
         });
@@ -176,11 +181,11 @@ public class StartShift extends Fragment {
     public void getCurrentLocation() {
         final LocationManager locationManager;
         LocationListener locationListener = null;
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
 
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_PERMISSION);
             return;
         }
@@ -192,7 +197,7 @@ public class StartShift extends Fragment {
             public void onLocationChanged(Location location) {
                 if (location == null) {
                     if (locationManager != null) {
-                        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                             // TODO: Consider calling
                             //    ActivityCompat#requestPermissions
                             // here to request the missing permissions, and then overriding

@@ -52,9 +52,14 @@ import com.google.gson.JsonParser;
 
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import retrofit2.Call;
 
 /**
@@ -128,6 +133,11 @@ public class Data {
         crewTrip.execute(activity);
     }
 
+    public static void googleLatLngApi(final Activity activity, String address, final UpdateCallback updateCallback) {
+        GoogleLatLng googleLatLng = new GoogleLatLng(updateCallback, address);
+        googleLatLng.execute(activity);
+    }
+
 
     public static void internetConnection(final UpdateCallback updateCallback) {
         InternetConnection intenetConnection = new InternetConnection(updateCallback);
@@ -180,6 +190,7 @@ public class Data {
                     Prefs.setPrefs("shift_refresh_frequency_rate", bootupResponse.payload.shiftRefreshFrequencyRate, activity);
                     Prefs.setPrefs("local_shift_refresh_frequency_rate", bootupResponse.payload.localShiftRefreshFrequencyRate, activity);
                     Prefs.setPrefs("location_refresh_frequency_rate", bootupResponse.payload.locationRefreshFrequencyRate, activity);
+                    Prefs.setPrefs("salt_key", bootupResponse.payload.salt_key, activity);
                     error = 0;
                 } else {
                     Globals.errorRes = bootupResponse.error.message;
@@ -1087,6 +1098,60 @@ public class Data {
                 Globals.errorRes = "No Internet Connection!";
                 e.printStackTrace();
             }
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            if (error == 0) {
+                updateCallback.onUpdate();
+            } else {
+                updateCallback.onFailure();
+            }
+        }
+    }
+
+
+    public static class GoogleLatLng extends AsyncTask<Activity, Void, Integer> {
+
+        UpdateCallback updateCallback;
+        String address;
+        int error = 0;
+
+        public GoogleLatLng(UpdateCallback updateCallback, String address) {
+            this.updateCallback = updateCallback;
+            this.address = address;
+        }
+
+        @Override
+        protected Integer doInBackground(Activity... params) {
+            final Activity activity = params[0];
+
+            String url="https://maps.googleapis.com/maps/api/geocode/json?address="+address+"&key=AIzaSyBG9yyecx_pIrAUSy_VivF7kXhOWTH5230";
+            OkHttpClient client = new OkHttpClient();
+            final Request request = new Request.Builder()
+                    .url(url)
+                    .build();
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(okhttp3.Call call, IOException e) {
+                    error=1;
+                    call.cancel();
+                }
+
+                @Override
+                public void onResponse(okhttp3.Call call, Response response) throws IOException {
+                    try {
+                        error=0;
+                        Log.d("tagg",response.body().toString());
+                    }catch (Exception e){
+                        error=1;
+                        e.printStackTrace();
+                    }
+                }
+            });
+
             return 0;
         }
 

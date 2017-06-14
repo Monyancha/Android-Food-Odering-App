@@ -2,6 +2,7 @@ package com.example.mayankaggarwal.dcare.fragments;
 
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -24,6 +25,7 @@ import com.example.mayankaggarwal.dcare.R;
 import com.example.mayankaggarwal.dcare.adapter.RVOrders;
 import com.example.mayankaggarwal.dcare.rest.Data;
 import com.example.mayankaggarwal.dcare.utils.Globals;
+import com.example.mayankaggarwal.dcare.utils.MergerSort;
 import com.example.mayankaggarwal.dcare.utils.OrderAlerts;
 import com.example.mayankaggarwal.dcare.utils.Prefs;
 import com.google.android.gms.games.internal.GamesLog;
@@ -39,10 +41,14 @@ public class OrderFragment extends Fragment {
 
 
     public static RecyclerView recyclerView;
-    SwipeRefreshLayout swipeRefreshLayout;
+    static SwipeRefreshLayout swipeRefreshLayout;
     public static LinearLayout tripLayout;
     public static ImageView tripImage;
     private static final int REQUEST_PERMISSION = 1;
+    int inTransitOrders = 0;
+    int deliveredOrdersInTrip = 0;
+    Activity activity;
+    Context context;
 
     public static OrderFragment newInstance() {
         OrderFragment fragment = new OrderFragment();
@@ -52,32 +58,34 @@ public class OrderFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
-                             Bundle savedInstanceState) {
+                             final Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_order, container, false);
+        this.activity = getActivity();
+        this.context = getContext();
         getCurrentLocation();
         recyclerView = (RecyclerView) view.findViewById(R.id.recyclervieworder);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        tripLayout=(LinearLayout)view.findViewById(R.id.triplayout);
-        tripImage=(ImageView) view.findViewById(R.id.tripimage);
-        if(Prefs.getPrefs("trip_started",getContext()).equals("0")){
+        tripLayout = (LinearLayout) view.findViewById(R.id.triplayout);
+        tripImage = (ImageView) view.findViewById(R.id.tripimage);
+        if (Prefs.getPrefs("trip_started", getContext()).equals("0")) {
             tripImage.setImageResource(R.drawable.starttrip);
-        }else{
+        } else {
             tripImage.setImageResource(R.drawable.endtrip);
         }
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.orderrefresh);
-        if(Globals.orderFetch==0){
-            getOrder();
-        }else {
+        if (Globals.orderFetch == 0) {
+            getOrder(activity, context);
+        } else {
             try {
                 if (!(Prefs.getPrefs("orderJson", getActivity())).equals("notfound")) {
                     JsonParser jsonParser = new JsonParser();
                     JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", getActivity())).getAsJsonObject();
                     JsonArray orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
-                   if(checkTransit(orderArray)==1){
-                       tripLayout.setVisibility(View.VISIBLE);
-                   }else {
-                       tripLayout.setVisibility(View.GONE);
-                   }
+                    if (checkTransit(orderArray) == 1) {
+                        tripLayout.setVisibility(View.VISIBLE);
+                    } else {
+                        tripLayout.setVisibility(View.GONE);
+                    }
                     recyclerView.setAdapter(new RVOrders(getActivity(), orderArray));
                 }
             } catch (Exception e) {
@@ -88,23 +96,46 @@ public class OrderFragment extends Fragment {
         tripImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Context context=getContext();
-                String operation;
-                if(Prefs.getPrefs("trip_started",getContext()).equals("0")){
-                    operation="start";
-                }else{
-                    operation="end";
+                final Context context = getContext();
+                final String operation;
+                String operation1;
+                if (Prefs.getPrefs("trip_started", getContext()).equals("0")) {
+                    operation1 = "start";
+                } else {
+                    JsonParser parser = new JsonParser();
+                    JsonArray jsonArray = parser.parse(Prefs.getPrefs("order_info", getActivity())).getAsJsonObject().get("order_info").getAsJsonArray();
+                    for (int i = 0; i < jsonArray.size(); i++) {
+                        JsonObject ob = jsonArray.get(i).getAsJsonObject();
+                        if (ob.get("order_last_state_code").getAsString().equals(String.valueOf(Globals.ORDERSTATE_IN_TRANSIT))) {
+                            inTransitOrders += 1;
+                        } else {
+                            deliveredOrdersInTrip += 1;
+                        }
+                    }
+                    if (inTransitOrders == jsonArray.size()) {
+                        operation1 = "cancel";
+                    } else if (deliveredOrdersInTrip == jsonArray.size()) {
+                        operation1 = "end";
+                    } else {
+                        operation1 = "partial";
+                    }
                 }
-                Data.crewTrip(getActivity(),operation, new Data.UpdateCallback() {
+                operation = operation1;
+                Data.crewTrip(activity, operation, new Data.UpdateCallback() {
                     @Override
                     public void onUpdate() {
-                        Prefs.setPrefs("trip_started","1",context);
-                        tripImage.setImageResource(R.drawable.endtrip);
+                        if (operation.equals("start")) {
+                            Prefs.setPrefs("trip_started", "1", context);
+                            tripImage.setImageResource(R.drawable.endtrip);
+                        } else if (operation.equals("end")) {
+                            Prefs.setPrefs("trip_started", "0", context);
+                        }
+                        getOrder(activity, context);
                     }
 
                     @Override
                     public void onFailure() {
-                        Globals.showFailAlert(getActivity(), "Error starting trip!");
+                        Globals.showFailAlert(activity, "Error starting trip!");
                     }
                 });
             }
@@ -114,67 +145,96 @@ public class OrderFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getOrder();
+                getOrder(activity, context);
             }
         });
         return view;
     }
 
-    public void getOrder() {
-        if (!(Prefs.getPrefs("vendor_id_selected", getActivity()).equals("notfound")) && !(Prefs.getPrefs("shift_id", getActivity()).equals("notfound"))) {
-            Data.getAllOrders(getActivity(), Prefs.getPrefs("vendor_id_selected", getActivity()), Prefs.getPrefs("shift_id", getActivity()), new Data.UpdateCallback() {
+    public static void getOrder(final Activity activity, final Context context) {
+        if (!(Prefs.getPrefs("vendor_id_selected", context).equals("notfound")) && !(Prefs.getPrefs("shift_id", context).equals("notfound"))) {
+            Data.getAllOrders(activity, Prefs.getPrefs("vendor_id_selected", context), Prefs.getPrefs("shift_id", context), new Data.UpdateCallback() {
                 @Override
                 public void onUpdate() {
                     Log.d("tagg", "success");
+                    swipeRefreshLayout.setRefreshing(false);
                     try {
-                        if (!(Prefs.getPrefs("orderJson", getActivity())).equals("notfound")) {
+                        if (!(Prefs.getPrefs("orderJson", context)).equals("notfound")) {
                             JsonParser jsonParser = new JsonParser();
-                            JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", getActivity())).getAsJsonObject();
+                            JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", context)).getAsJsonObject();
                             JsonArray orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
-                            if(checkTransit(orderArray)==1) {
+                            if (checkTransit(orderArray) == 1) {
                                 tripLayout.setVisibility(View.VISIBLE);
-                            }else {
+                            } else {
                                 tripLayout.setVisibility(View.GONE);
                             }
-                            recyclerView.setAdapter(new RVOrders(getActivity(), orderArray));
-                            getReasons();
+                            checkForNullLatLng(activity, orderArray);
+                            recyclerView.setAdapter(new RVOrders(activity, orderArray));
+                            getReasons(activity);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
+
                 @Override
                 public void onFailure() {
                     swipeRefreshLayout.setRefreshing(false);
-                    Globals.showFailAlert(getActivity(), "Error fetching orders!");
+                    Globals.showFailAlert(activity, "Error fetching orders!");
                 }
             });
         }
     }
 
-    public void getReasons() {
-            Data.getReasons(getActivity(),new Data.UpdateCallback() {
-                @Override
-                public void onUpdate() {
-                    Log.d("tagg", "success reasons");
-                    Globals.orderFetch=1;
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-                @Override
-                public void onFailure() {
-                    swipeRefreshLayout.setRefreshing(false);
-                    Globals.showFailAlert(getActivity(), "Error fetching reasons!");
-                }
-            });
+    private static void checkForNullLatLng(Activity activity, JsonArray orderArray) {
+        for (int i = 0; i < orderArray.size(); i++) {
+            JsonObject orderObject = orderArray.get(i).getAsJsonObject().get("pickup_address").getAsJsonObject();
+            String add_location_lat = orderObject.get("add_location_lat").getAsString();
+            String add_location_long = orderObject.get("add_location_long").getAsString();
+            if (add_location_long.equals(null) || add_location_lat.equals(null) || add_location_long.equals("null") || add_location_lat.equals("null")) {
+                JsonObject dropObject = orderArray.get(i).getAsJsonObject().get("drop_address").getAsJsonObject();
+                String google_string = Globals.getDropAddress(dropObject);
+                Log.d("tagg",google_string);
+                Data.googleLatLngApi(activity, google_string, new Data.UpdateCallback() {
+                    @Override
+                    public void onUpdate() {
+
+                    }
+
+                    @Override
+                    public void onFailure() {
+                           //nothing
+                    }
+                });
+            }
+        }
+
     }
 
-    public int checkTransit(JsonArray orderArray){
-        int k=0;
-        for(int i=0;i<orderArray.size();i++){
+    public static void getReasons(final Activity activity) {
+        Data.getReasons(activity, new Data.UpdateCallback() {
+            @Override
+            public void onUpdate() {
+                Log.d("tagg", "success reasons");
+                Globals.orderFetch = 1;
+                swipeRefreshLayout.setRefreshing(false);
+            }
+
+            @Override
+            public void onFailure() {
+                swipeRefreshLayout.setRefreshing(false);
+                Globals.showFailAlert(activity, "Error fetching reasons!");
+            }
+        });
+    }
+
+    public static int checkTransit(JsonArray orderArray) {
+        int k = 0;
+        for (int i = 0; i < orderArray.size(); i++) {
             final JsonObject orderObject = orderArray.get(i).getAsJsonObject().get("order").getAsJsonObject();
             String order_code = orderObject.get("order_last_state_code").getAsString();
-            if(Integer.parseInt(order_code)==Globals.ORDERSTATE_IN_TRANSIT){
-                k=1;
+            if (Integer.parseInt(order_code) == Globals.ORDERSTATE_IN_TRANSIT) {
+                k = 1;
                 break;
             }
         }
@@ -184,11 +244,11 @@ public class OrderFragment extends Fragment {
     public void getCurrentLocation() {
         final LocationManager locationManager;
         LocationListener locationListener = null;
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_PERMISSION);
             return;
         }
@@ -200,7 +260,7 @@ public class OrderFragment extends Fragment {
             public void onLocationChanged(Location location) {
                 if (location == null) {
                     if (locationManager != null) {
-                        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                             // TODO: Consider calling
                             //    ActivityCompat#requestPermissions
                             // here to request the missing permissions, and then overriding

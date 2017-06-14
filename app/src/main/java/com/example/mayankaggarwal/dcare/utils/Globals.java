@@ -12,6 +12,8 @@ import android.widget.TextView;
 import com.example.mayankaggarwal.dcare.R;
 import com.example.mayankaggarwal.dcare.activities.OtpActivity;
 import com.example.mayankaggarwal.dcare.rest.Data;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,14 +26,14 @@ public class Globals {
 
     public static String lat;
     public static String lng;
-    public static int validatedShift=0;
-    public static String star_Rating="";
-    public static String reason_id="";
-    public static String reason_text="";
-    public static int state_code_return_or_cancel_or_delivered=9;
-    public static String customerCare="+918076792025";
-    public static int orderFetch=0;
-    public static int tripLayout=0;
+    public static int validatedShift = 0;
+    public static String star_Rating = "";
+    public static String reason_id = "";
+    public static String reason_text = "";
+    public static int state_code_return_or_cancel_or_delivered = 9;
+    public static String customerCare = "+918076792025";
+    public static int orderFetch = 0;
+    public static int tripLayout = 0;
 
     public static String appVersion = "1.0.0";
     public static String appOS = "Android";
@@ -87,7 +89,7 @@ public class Globals {
             }
         });
         AlertDialog dialog;
-        dialog=alert.create();
+        dialog = alert.create();
         dialog.show();
         if (activity.isDestroyed() || activity.isFinishing()) {
             dialog.dismiss();
@@ -96,9 +98,9 @@ public class Globals {
 
     public static List<Integer> threeMedia = new ArrayList<>();
 
-    //public static int ORDERSTATE_RECIEVED = 1;
-    //public static int ORDERSTATE_ACCEPTED = 2;
-    //public static int ORDERSTATE_UNASSIGNED = 3;
+    public static int ORDERSTATE_RECIEVED = 1;
+    public static int ORDERSTATE_ACCEPTED = 2;
+    public static int ORDERSTATE_UNASSIGNED = 3;
     public static int ORDERSTATE_ASSIGNED = 4;
     public static int ORDERSTATE_CREW_AKNOLEDGED = 5;
     public static int ORDERSTATE_IN_TRANSIT = 7;
@@ -107,5 +109,27 @@ public class Globals {
     public static int ORDERSTATE_END_STATE_CANCELD = 10;
     public static int ORDERSTATE_END_STATE_RETURNED = 11;
 
+    public static String google_address_string = null;
+    public static String drop_address_string = null;
+
+
+    public static String getDropAddress(JsonObject dropaddress) {
+
+        String house_number = getNullAsEmptyString("house_number", dropaddress);
+        String complex_name = getNullAsEmptyString("complex_name", dropaddress);
+        String street_name = getNullAsEmptyString("street_name", dropaddress);
+        String city = getNullAsEmptyString("city", dropaddress);
+        String state = getNullAsEmptyString("state", dropaddress);
+        String postal_code = getNullAsEmptyString("postal_code", dropaddress);
+        String country_code = getNullAsEmptyString("country_code", dropaddress);
+        google_address_string=complex_name+" "+street_name+" "+city+" "+state+" "+postal_code+" "+country_code;
+        drop_address_string=house_number+" "+complex_name+" "+street_name+" "+city+" "+state+" "+postal_code+" "+country_code;
+
+        return complex_name+" "+street_name+" "+city+" "+state+" "+postal_code+" "+country_code;
+}
+
+    private static String getNullAsEmptyString(String s, JsonObject drop) {
+        return drop.get(s).isJsonNull() ? "" : drop.get(s).getAsString();
+    }
 
 }
