@@ -75,6 +75,7 @@ public class OrderFragment extends Fragment {
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.orderrefresh);
         if (Globals.orderFetch == 0) {
             getOrder(activity, context);
+            getReasons(activity);
         } else {
             try {
                 if (!(Prefs.getPrefs("orderJson", getActivity())).equals("notfound")) {
@@ -106,7 +107,7 @@ public class OrderFragment extends Fragment {
                     JsonArray jsonArray = parser.parse(Prefs.getPrefs("order_info", getActivity())).getAsJsonObject().get("order_info").getAsJsonArray();
                     for (int i = 0; i < jsonArray.size(); i++) {
                         JsonObject ob = jsonArray.get(i).getAsJsonObject();
-                        if (ob.get("order_last_state_code").getAsString().equals(String.valueOf(Globals.ORDERSTATE_IN_TRANSIT))) {
+                        if (ob.get("new_order_state_code").getAsString().equals(String.valueOf(Globals.ORDERSTATE_IN_TRANSIT))) {
                             inTransitOrders += 1;
                         } else {
                             deliveredOrdersInTrip += 1;
@@ -127,7 +128,8 @@ public class OrderFragment extends Fragment {
                         if (operation.equals("start")) {
                             Prefs.setPrefs("trip_started", "1", context);
                             tripImage.setImageResource(R.drawable.endtrip);
-                        } else if (operation.equals("end")) {
+                        } else {
+                            tripImage.setImageResource(R.drawable.starttrip);
                             Prefs.setPrefs("trip_started", "0", context);
                         }
                         getOrder(activity, context);
@@ -170,7 +172,6 @@ public class OrderFragment extends Fragment {
                             }
                             checkForNullLatLng(activity, orderArray);
                             recyclerView.setAdapter(new RVOrders(activity, orderArray));
-                            getReasons(activity);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -194,8 +195,8 @@ public class OrderFragment extends Fragment {
             if (add_location_lat || add_location_long) {
                 JsonObject dropObject = orderArray.get(i).getAsJsonObject().get("drop_address").getAsJsonObject();
                 String google_string = Globals.getDropAddress(dropObject);
-                Log.d("tagg",google_string);
-                Data.googleLatLngApi(activity, google_string.replace(" ","+"), new Data.UpdateCallback() {
+                Log.d("tagg", google_string);
+                Data.googleLatLngApi(activity, google_string.replace(" ", "+"), new Data.UpdateCallback() {
                     @Override
                     public void onUpdate() {
                         Data.updatelatlng(activity, new Data.UpdateCallback() {
@@ -210,12 +211,13 @@ public class OrderFragment extends Fragment {
                             }
                         });
                     }
+
                     @Override
                     public void onFailure() {
-                           //nothing
-                        Globals.googleLat=null;
-                        Globals.googleLng=null;
-                        Globals.place_id=null;
+                        //nothing
+                        Globals.googleLat = null;
+                        Globals.googleLng = null;
+                        Globals.place_id = null;
                     }
                 });
             }

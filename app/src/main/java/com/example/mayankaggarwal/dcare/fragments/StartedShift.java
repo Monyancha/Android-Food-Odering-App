@@ -114,8 +114,7 @@ public class StartedShift extends Fragment {
         return view;
     }
 
-    private void validateCrewShift(final FragmentActivity activity, final Context context) {
-        try {
+    private void validateCrewShift() {
             Data.validateShift(context, Prefs.getPrefs("vendor_id_selected", context), Prefs.getPrefs("shift_id", context), Globals.lat, Globals.lng, new Data.UpdateCallback() {
                 @Override
                 public void onUpdate() {
@@ -129,14 +128,11 @@ public class StartedShift extends Fragment {
                     Prefs.setPrefs("trip_started", "0", context);
 
                     fragment = ShiftFragment.newInstance();
-                    FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
+                    FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
                     transaction.replace(R.id.frame_layout, fragment);
                     transaction.commit();
                 }
             });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public static void scheduleLocalShiftAlarm(Context context) {
@@ -239,7 +235,7 @@ public class StartedShift extends Fragment {
                     Globals.lat = String.valueOf(location.getLatitude());
                     Globals.lng = String.valueOf(location.getLongitude());
                     if (Globals.validatedShift == 0) {
-                        validateCrewShift(getActivity(),getContext());
+                        validateCrewShift();
                     }
                 }
 //                Log.d("tagg", "lat:" + latitude);
