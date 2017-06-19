@@ -25,13 +25,15 @@ import com.example.mayankaggarwal.dcare.R;
 import com.example.mayankaggarwal.dcare.adapter.RVOrders;
 import com.example.mayankaggarwal.dcare.rest.Data;
 import com.example.mayankaggarwal.dcare.utils.Globals;
-import com.example.mayankaggarwal.dcare.utils.MergerSort;
-import com.example.mayankaggarwal.dcare.utils.OrderAlerts;
 import com.example.mayankaggarwal.dcare.utils.Prefs;
-import com.google.android.gms.games.internal.GamesLog;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import org.json.JSONArray;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -87,7 +89,7 @@ public class OrderFragment extends Fragment {
                     } else {
                         tripLayout.setVisibility(View.GONE);
                     }
-                    recyclerView.setAdapter(new RVOrders(getActivity(), orderArray));
+                    recyclerView.setAdapter(new RVOrders(getActivity(), orderArray, false));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -128,6 +130,7 @@ public class OrderFragment extends Fragment {
                         if (operation.equals("start")) {
                             Prefs.setPrefs("trip_started", "1", context);
                             tripImage.setImageResource(R.drawable.endtrip);
+                            callForRoadMap();
                         } else {
                             tripImage.setImageResource(R.drawable.starttrip);
                             Prefs.setPrefs("trip_started", "0", context);
@@ -153,6 +156,37 @@ public class OrderFragment extends Fragment {
         return view;
     }
 
+    private void callForRoadMap() {
+        if (!(Prefs.getPrefs("orderJson", context)).equals("notfound")) {
+            JsonParser jsonParser = new JsonParser();
+            JsonObject obj = jsonParser.parse(Prefs.getPrefs("orderJson", context)).getAsJsonObject();
+            JsonArray orderArray = obj.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
+            JsonArray orderTransit=new JsonArray();
+            for(int i=0;i<orderArray.size();i++){
+                JsonObject ob = orderArray.get(i).getAsJsonObject();
+                JsonObject orderObject = orderArray.get(i).getAsJsonObject().get("order").getAsJsonObject();
+                String order_code = orderObject.get("order_last_state_code").getAsString();
+                if (Integer.parseInt(order_code) == Globals.ORDERSTATE_IN_TRANSIT) {
+                    orderTransit.add(ob);
+                }
+            }
+            String address=Globals.getAddressForRoadMap(orderTransit);
+            Log.d("tagg",""+address);
+            Data.googleRoadMAp(activity, address, new Data.UpdateCallback() {
+                @Override
+                public void onUpdate() {
+                    Log.d("tagg","success road map api");
+                    //plot path on map
+                }
+
+                @Override
+                public void onFailure() {
+
+                }
+            });
+        }
+    }
+
     public static void getOrder(final Activity activity, final Context context) {
         if (!(Prefs.getPrefs("vendor_id_selected", context).equals("notfound")) && !(Prefs.getPrefs("shift_id", context).equals("notfound"))) {
             Data.getAllOrders(activity, Prefs.getPrefs("vendor_id_selected", context), Prefs.getPrefs("shift_id", context), new Data.UpdateCallback() {
@@ -171,7 +205,7 @@ public class OrderFragment extends Fragment {
                                 tripLayout.setVisibility(View.GONE);
                             }
                             checkForNullLatLng(activity, orderArray);
-                            recyclerView.setAdapter(new RVOrders(activity, orderArray));
+                            recyclerView.setAdapter(new RVOrders(activity, orderArray, false));
                         }
                     } catch (Exception e) {
                         e.printStackTrace();

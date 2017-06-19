@@ -3,7 +3,6 @@ package com.example.mayankaggarwal.dcare.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -15,6 +14,7 @@ import android.widget.Spinner;
 
 import com.example.mayankaggarwal.dcare.R;
 import com.example.mayankaggarwal.dcare.adapter.RVOrders;
+import com.example.mayankaggarwal.dcare.fragments.MapFragment;
 import com.example.mayankaggarwal.dcare.fragments.OrderFragment;
 import com.example.mayankaggarwal.dcare.rest.Data;
 import com.google.gson.JsonArray;
@@ -33,7 +33,7 @@ public class OrderAlerts {
     private static AlertDialog declineAlert;
     private static AlertDialog feedbackAlert;
 
-    public static void showDeclineOrderAlert(final Activity activity, final Context context, final String order_id, final int orderstateTo, final String orderstateFrom, final int position) {
+    public static void showDeclineOrderAlert(final Activity activity, final Context context, final String order_id, final int orderstateTo, final String orderstateFrom, final int position, final Boolean mapView) {
 
         final Button yes, no;
 
@@ -52,7 +52,7 @@ public class OrderAlerts {
         yes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                doVisuallyFromTo(context,activity,order_id,orderstateTo,orderstateFrom,position);
+                doVisuallyFromTo(context,activity,order_id,orderstateTo,orderstateFrom,position,mapView);
                 declineAlert.dismiss();
                 Data.changeOrderState(context, order_id, String.valueOf(orderstateTo), new Data.UpdateCallback() {
                     @Override
@@ -63,7 +63,7 @@ public class OrderAlerts {
 
                     @Override
                     public void onFailure() {
-                        doVisuallyToFrom(context,activity,order_id,orderstateTo,orderstateFrom,position);
+                        doVisuallyToFrom(context,activity,order_id,orderstateTo,orderstateFrom,position,mapView);
                         Globals.showFailAlert(activity, "Error cancelling order!");
                     }
                 });
@@ -544,7 +544,7 @@ public class OrderAlerts {
 //        }
 //    }
 
-    private static void doVisuallyFromTo(Context context, Activity activity, String order_id, int orderstateTo, String orderstateFrom, int position) {
+    private static void doVisuallyFromTo(Context context, Activity activity, String order_id, int orderstateTo, String orderstateFrom, int position, Boolean mapView) {
         if (!(Prefs.getPrefs("orderJson", context)).equals("notfound")) {
             JsonParser jsonParser = new JsonParser();
             JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", context)).getAsJsonObject();
@@ -559,11 +559,16 @@ public class OrderAlerts {
 
             ob = jsonParser.parse(Prefs.getPrefs("orderJson", activity)).getAsJsonObject();
             orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
-            OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray));
+//            OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray, false));
+            if(!mapView){
+                OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray, false));
+            }else {
+                MapFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray, true));
+            }
         }
     }
 
-    private static void doVisuallyToFrom(Context context, Activity activity, String order_id, int orderstateTo, String orderstateFrom, int position) {
+    private static void doVisuallyToFrom(Context context, Activity activity, String order_id, int orderstateTo, String orderstateFrom, int position, Boolean mapView) {
         if (!(Prefs.getPrefs("orderJson", context)).equals("notfound")) {
             JsonParser jsonParser = new JsonParser();
             JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", context)).getAsJsonObject();
@@ -578,7 +583,13 @@ public class OrderAlerts {
 
             ob = jsonParser.parse(Prefs.getPrefs("orderJson", activity)).getAsJsonObject();
             orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
-            OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray));
+//            OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray, false));
+            if(!mapView){
+                OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray, false));
+            }else {
+                MapFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray, true));
+            }
+
         }
     }
 

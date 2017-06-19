@@ -3,6 +3,7 @@ package com.example.mayankaggarwal.dcare.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
@@ -31,9 +32,16 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import org.json.JSONException;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
@@ -47,7 +55,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     JsonArray orderOther = new JsonArray();
     GoogleMap map;
     MapView mapView;
-    RecyclerView recyclerView;
+    public static RecyclerView recyclerView;
     BottomSheetBehavior bottomSheetBehavior;
     CoordinatorLayout coordinatorLayout;
     LinearLayout bottom_layout;
@@ -81,7 +89,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 JsonParser jsonParser = new JsonParser();
                 JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", getActivity())).getAsJsonObject();
                 JsonArray orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
-                recyclerView.setAdapter(new RVOrders(getActivity(), orderArray));
+                recyclerView.setAdapter(new RVOrders(getActivity(), orderArray,true));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -117,6 +125,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 return true;
             }
         });
+
+        googleMap.addPolyline(getPolylines());
+
     }
 
     private void getMarkers() {
@@ -184,6 +195,94 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
 
+    public PolylineOptions getPolylines() {
+        List<LatLng> polylines = new ArrayList<LatLng>();
+        List<List<HashMap<String, String>>> routes = new ArrayList<List<HashMap<String, String>>>();
+        List<HashMap<String, String>> path = new ArrayList<HashMap<String, String>>();
+
+        if (!(Prefs.getPrefs("roadMapJson", context).equals("notfound"))) {
+            JsonParser jsonParser = new JsonParser();
+            JsonObject obj = jsonParser.parse(Prefs.getPrefs("roadMapJson", context)).getAsJsonObject();
+            JsonArray legs = obj.get("legs").getAsJsonArray();
+            for (int i = 0; i < legs.size(); i++) {
+                JsonArray steps = legs.get(i).getAsJsonObject().get("steps").getAsJsonArray();
+                for (int j = 0; j < steps.size(); j++) {
+                    List<LatLng> list =decodePoly(steps.get(i).getAsJsonObject().get("polyline").getAsJsonObject().get("points").getAsString());
+                    for (int l = 0; l < list.size(); l++) {
+                        HashMap<String, String> hm = new HashMap<String, String>();
+                        hm.put("lat",
+                                Double.toString(((LatLng) list.get(l)).latitude));
+                        hm.put("lng",
+                                Double.toString(((LatLng) list.get(l)).longitude));
+                        path.add(hm);
+                    }
+                }
+            }
+        }
+        routes.add(path);
+
+
+        ArrayList<LatLng> points = null;
+        PolylineOptions polyLineOptions = null;
+
+        // traversing through routes
+        for (int i = 0; i < routes.size(); i++) {
+            points = new ArrayList<LatLng>();
+            polyLineOptions = new PolylineOptions();
+            List<HashMap<String, String>> pathk = routes.get(i);
+
+            for (int j = 0; j < pathk.size(); j++) {
+                HashMap<String, String> point = pathk.get(j);
+
+                double lat = Double.parseDouble(point.get("lat"));
+                double lng = Double.parseDouble(point.get("lng"));
+                LatLng position = new LatLng(lat, lng);
+
+                points.add(position);
+            }
+
+            polyLineOptions.addAll(points);
+            polyLineOptions.width(15);
+            polyLineOptions.color(Color.parseColor("#fe4c13"));
+        }
+
+//        googleMap.addPolyline(polyLineOptions);
+        return polyLineOptions;
+    }
+
+    private List<LatLng> decodePoly(String encoded) {
+
+        List<LatLng> poly = new ArrayList<LatLng>();
+        int index = 0, len = encoded.length();
+        int lat = 0, lng = 0;
+
+        while (index < len) {
+            int b, shift = 0, result = 0;
+            do {
+                b = encoded.charAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lat += dlat;
+
+            shift = 0;
+            result = 0;
+            do {
+                b = encoded.charAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lng += dlng;
+
+            LatLng p = new LatLng((((double) lat / 1E5)),
+                    (((double) lng / 1E5)));
+            poly.add(p);
+        }
+        return poly;
+    }
+
 
     @Override
     public void onResume() {
@@ -205,4 +304,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         super.onLowMemory();
         mapView.onLowMemory();
     }
+
 }
+

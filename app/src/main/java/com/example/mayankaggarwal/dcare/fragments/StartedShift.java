@@ -176,8 +176,7 @@ public class StartedShift extends Fragment {
             public void onClick(View v) {
                 String vendor_id = Prefs.getPrefs("vendor_id_selected", context);
                 String checkItems_id = Prefs.getPrefs("activity_list_selected", context);
-                getCurrentLocation();
-                Data.crewShiftStartEnd(activity, vendor_id, checkItems_id, "end", latitude, longitude, new Data.UpdateCallback() {
+                Data.crewShiftStartEnd(activity, vendor_id, checkItems_id, "end", Globals.lat, Globals.lng, new Data.UpdateCallback() {
                     @Override
                     public void onUpdate() {
                         Prefs.setPrefs("shiftStarted", "0", context);

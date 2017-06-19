@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.example.mayankaggarwal.dcare.R;
 import com.example.mayankaggarwal.dcare.activities.OtpActivity;
 import com.example.mayankaggarwal.dcare.rest.Data;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -98,23 +99,23 @@ public class Globals {
 
     public static List<Integer> threeMedia = new ArrayList<>();
 
-    public static int ORDERSTATE_RECIEVED = 1;
-    public static int ORDERSTATE_ACCEPTED = 2;
+//    public static int ORDERSTATE_RECIEVED = 1;
+//    public static int ORDERSTATE_ACCEPTED = 2;
     public static int ORDERSTATE_UNASSIGNED = 3;
     public static int ORDERSTATE_ASSIGNED = 4;
     public static int ORDERSTATE_CREW_AKNOLEDGED = 5;
     public static int ORDERSTATE_IN_TRANSIT = 7;
-    //public static int ORDER_END_STATE = 8;
+    public static int ORDER_END_STATE = 8;
     public static int ORDERSTATE_END_STATE_DELIVERED = 9;
     public static int ORDERSTATE_END_STATE_CANCELD = 10;
     public static int ORDERSTATE_END_STATE_RETURNED = 11;
 
     public static String google_address_string = null;
     public static String drop_address_string = null;
-    public static String googleLat=null;
-    public static String googleLng=null;
-    public static String address_id=null;
-    public static String place_id=null;
+    public static String googleLat = null;
+    public static String googleLng = null;
+    public static String address_id = null;
+    public static String place_id = null;
 
 
     public static String getDropAddress(JsonObject dropaddress) {
@@ -126,12 +127,41 @@ public class Globals {
         String state = getNullAsEmptyString("state", dropaddress);
         String postal_code = getNullAsEmptyString("postal_code", dropaddress);
         String country_code = getNullAsEmptyString("country_code", dropaddress);
-        google_address_string=complex_name+" "+street_name+" "+city+" "+state+" "+postal_code+" "+country_code;
-        google_address_string=google_address_string.replace(" ","+");
-        drop_address_string=house_number+" "+complex_name+" "+street_name+" "+city+" "+state+" "+postal_code+" "+country_code;
+        google_address_string = complex_name + " " + street_name + " " + city + " " + state + " " + postal_code + " " + country_code;
+        google_address_string = google_address_string.replace(" ", "+");
+        drop_address_string = house_number + " " + complex_name + " " + street_name + " " + city + " " + state + " " + postal_code + " " + country_code;
 
         return google_address_string;
-}
+    }
+
+    public static String getAddressForRoadMap(JsonArray orderTransit) {
+        String dropAddress = getDropAddress(orderTransit);
+        String pickUpAddress = getPickUpAddress(orderTransit);
+        return "origin=" + pickUpAddress + "&destination=" + pickUpAddress + "&waypoints=optimize:true|" + dropAddress;
+    }
+
+    public static String getPickUpAddress(JsonArray orderTransit) {
+        JsonObject ob = orderTransit.get(0).getAsJsonObject().get("pickup_address").getAsJsonObject();
+        if (ob.get("add_location_long").isJsonNull() || ob.get("add_location_lat").isJsonNull()) {
+            return getDropAddress(ob).replace(" ", "+");
+        } else {
+            return ob.get("add_location_lat").getAsString() + "," + ob.get("add_location_long").getAsString();
+        }
+    }
+
+    public static String getDropAddress(JsonArray orderTransit) {
+        String drop = "";
+        for (int i = 0; i < orderTransit.size(); i++) {
+            JsonObject ob = orderTransit.get(i).getAsJsonObject().get("drop_address").getAsJsonObject();
+            if (ob.get("add_location_long").isJsonNull() || ob.get("add_location_lat").isJsonNull()) {
+                drop = drop + getDropAddress(ob).replace(" ", "+");
+            } else {
+                drop = drop + ob.get("add_location_lat").getAsString() + "," + ob.get("add_location_long").getAsString();
+            }
+            drop = drop + "|";
+        }
+        return drop.substring(0,drop.length()-1);
+    }
 
     private static String getNullAsEmptyString(String s, JsonObject drop) {
         return drop.get(s).isJsonNull() ? "" : drop.get(s).getAsString();

@@ -143,6 +143,11 @@ public class Data {
         updateLatLng.execute(activity);
     }
 
+    public static void googleRoadMAp(final Activity activity, String address, final UpdateCallback updateCallback) {
+        GoogleRoadMap googleRoadMap = new GoogleRoadMap(updateCallback, address);
+        googleRoadMap.execute(activity);
+    }
+
 
     public static void internetConnection(final UpdateCallback updateCallback) {
         InternetConnection intenetConnection = new InternetConnection(updateCallback);
@@ -1168,6 +1173,68 @@ public class Data {
                         Globals.googleLat=null;
                         Globals.googleLng=null;
                         Globals.place_id=null;
+                        error=1;
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            if (error == 0) {
+                updateCallback.onUpdate();
+            } else {
+                updateCallback.onFailure();
+            }
+        }
+    }
+
+
+    public static class GoogleRoadMap extends AsyncTask<Activity, Void, Integer> {
+
+        UpdateCallback updateCallback;
+        String address;
+        int error = 0;
+
+        public GoogleRoadMap(UpdateCallback updateCallback, String address) {
+            this.updateCallback = updateCallback;
+            this.address = address;
+        }
+
+        @Override
+        protected Integer doInBackground(Activity... params) {
+            final Activity activity = params[0];
+
+            String url= "https://maps.googleapis.com/maps/api/directions/json?"+address+"&key=AIzaSyBG9yyecx_pIrAUSy_VivF7kXhOWTH5230";
+            OkHttpClient client = new OkHttpClient();
+            final Request request = new Request.Builder()
+                    .url(url)
+                    .build();
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(okhttp3.Call call, IOException e) {
+                    Globals.googleLat=null;
+                    Globals.googleLng=null;
+                    error=1;
+                    call.cancel();
+                }
+
+                @Override
+                public void onResponse(okhttp3.Call call, Response response) throws IOException {
+                    try {
+                        error=0;
+                        String res=response.body().string();
+                        JsonParser jsonParser=new JsonParser();
+                        JsonObject jsonObject=jsonParser.parse(res).getAsJsonObject();
+                        if(jsonObject.get("status").getAsString().toLowerCase().equals("ok")){
+                            JsonObject routes=jsonObject.get("routes").getAsJsonArray().get(0).getAsJsonObject();
+                            Prefs.setPrefs("roadMapJson",routes.toString(),activity);
+                        }
+                    }catch (Exception e){
                         error=1;
                         e.printStackTrace();
                     }
