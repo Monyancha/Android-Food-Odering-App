@@ -21,6 +21,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.mayankaggarwal.dcare.R;
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity
     ActionBarDrawerToggle mActionDrawerToggle;
     DrawerLayout drawerLayout;
     CoordinatorLayout mainView;
+    ImageView mapImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,14 +61,22 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        mapImage=(ImageView)findViewById(R.id.mapimage);
+
+        mapImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fragment = MapFragment.newInstance();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.frame_layout, fragment);
+                transaction.commit();
+            }
+        });
+
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mainView = (CoordinatorLayout) findViewById(R.id.main_coordinate);
 
         drawerLayout.setScrimColor(getResources().getColor(R.color.nav_blur));
-
-
-//        drawerLayout.setDrawerShadow(R.drawable.selectstar,GravityCompat.START);
-
 
         mActionDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
@@ -108,10 +118,6 @@ public class MainActivity extends AppCompatActivity
         mActionDrawerToggle.syncState();
 
         settingNavigationClickListener();
-
-
-        Drawable drawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.context);
-        toolbar.setOverflowIcon(drawable);
 
 
         toolbarText = (TextView) findViewById(R.id.titletext);
@@ -291,11 +297,6 @@ public class MainActivity extends AppCompatActivity
                     transaction.commit();
                 }
 
-//                fragment = ShiftFragment.newInstance();
-//                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//                transaction.replace(R.id.frame_layout, fragment);
-//                transaction.commit();
-
                 shift.setImageResource(R.drawable.shiftsiconselected);
                 shift.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.themered)));
                 navigatingBottomBar(order, report, notification, "SHIFT");
@@ -390,32 +391,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            fragment = MapFragment.newInstance();
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.frame_layout, fragment);
-            transaction.commit();
-//            startActivity(new Intent(MainActivity.this, ProgressBarActivity.class));
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -425,12 +400,4 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-//    public int getWidth() {
-//        Display display = getWindowManager().getDefaultDisplay();
-//        Point size = new Point();
-//        display.getSize(size);
-//        int width = size.x;
-//        int height = size.y;
-//        return width;
-//    }
 }

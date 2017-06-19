@@ -176,7 +176,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onMapLoaded() {
                 CameraPosition cameraPosition = new CameraPosition.Builder()
                         .target(place)
-                        .zoom(5)
+                        .zoom(15)
                         .build();
                 map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             }
