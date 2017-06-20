@@ -367,7 +367,8 @@ public class OrderAlerts {
                 OrderFragment.getOrder(activity,activity);
 
                 JsonParser parser=new JsonParser();
-                JsonArray jsonArray=parser.parse(Prefs.getPrefs("order_info",activity)).getAsJsonObject().get("order_info").getAsJsonArray();
+                JsonObject jsonObject=parser.parse(Prefs.getPrefs("order_info",activity)).getAsJsonObject();
+                JsonArray jsonArray=jsonObject.get("order_info").getAsJsonArray();
                 for(int i=0;i<jsonArray.size();i++){
                     JsonObject ob=jsonArray.get(i).getAsJsonObject();
                     if(ob.get("order_id").getAsString().equals(order_id)){
@@ -375,7 +376,7 @@ public class OrderAlerts {
                         ob.addProperty("new_order_state_code", Globals.state_code_return_or_cancel_or_delivered);
                     }
                 }
-                Prefs.setPrefs("order_info",jsonArray.toString(),activity);
+                Prefs.setPrefs("order_info",jsonObject.toString(),activity);
             }
 
             @Override
@@ -517,32 +518,7 @@ public class OrderAlerts {
             returned.setTextColor(activity.getResources().getColor(R.color.white));
         }
     }
-//
-//    public static void getOrder(final Context context, final Activity activity) {
-//        if (!(Prefs.getPrefs("vendor_id_selected", context).equals("notfound")) && !(Prefs.getPrefs("shift_id", context).equals("notfound"))) {
-//            Data.getAllOrders(activity, Prefs.getPrefs("vendor_id_selected", context), Prefs.getPrefs("shift_id", context), new Data.UpdateCallback() {
-//                @Override
-//                public void onUpdate() {
-//                    Log.d("tagg", "success");
-//                    try {
-//                        if (!(Prefs.getPrefs("orderJson", context)).equals("notfound")) {
-//                            JsonParser jsonParser = new JsonParser();
-//                            JsonObject ob = jsonParser.parse(Prefs.getPrefs("orderJson", context)).getAsJsonObject();
-//                            JsonArray orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
-//                            OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray));
-//                        }
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//
-//                @Override
-//                public void onFailure() {
-//                    Globals.showFailAlert(activity, "Error fetching orders!");
-//                }
-//            });
-//        }
-//    }
+
 
     private static void doVisuallyFromTo(Context context, Activity activity, String order_id, int orderstateTo, String orderstateFrom, int position, Boolean mapView) {
         if (!(Prefs.getPrefs("orderJson", context)).equals("notfound")) {
@@ -561,9 +537,9 @@ public class OrderAlerts {
             orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
 //            OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray, false));
             if(!mapView){
-                OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray, false));
+                OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray));
             }else {
-                MapFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray, true));
+                MapFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray));
             }
         }
     }
@@ -585,9 +561,9 @@ public class OrderAlerts {
             orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
 //            OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray, false));
             if(!mapView){
-                OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray, false));
+                OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray));
             }else {
-                MapFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray, true));
+                MapFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray));
             }
 
         }

@@ -69,6 +69,7 @@ public class OrderFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         tripLayout = (LinearLayout) view.findViewById(R.id.triplayout);
         tripImage = (ImageView) view.findViewById(R.id.tripimage);
+        Globals.mapView=false;
         if (Prefs.getPrefs("trip_started", getContext()).equals("0")) {
             tripImage.setImageResource(R.drawable.starttrip);
         } else {
@@ -89,7 +90,7 @@ public class OrderFragment extends Fragment {
                     } else {
                         tripLayout.setVisibility(View.GONE);
                     }
-                    recyclerView.setAdapter(new RVOrders(getActivity(), orderArray, false));
+                    recyclerView.setAdapter(new RVOrders(getActivity(), orderArray));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -105,6 +106,7 @@ public class OrderFragment extends Fragment {
                 if (Prefs.getPrefs("trip_started", getContext()).equals("0")) {
                     operation1 = "start";
                 } else {
+                    Log.d("tagg",Prefs.getPrefs("order_info", getActivity()));
                     JsonParser parser = new JsonParser();
                     JsonArray jsonArray = parser.parse(Prefs.getPrefs("order_info", getActivity())).getAsJsonObject().get("order_info").getAsJsonArray();
                     for (int i = 0; i < jsonArray.size(); i++) {
@@ -205,7 +207,7 @@ public class OrderFragment extends Fragment {
                                 tripLayout.setVisibility(View.GONE);
                             }
                             checkForNullLatLng(activity, orderArray);
-                            recyclerView.setAdapter(new RVOrders(activity, orderArray, false));
+                            recyclerView.setAdapter(new RVOrders(activity, orderArray));
                         }
                     } catch (Exception e) {
                         e.printStackTrace();

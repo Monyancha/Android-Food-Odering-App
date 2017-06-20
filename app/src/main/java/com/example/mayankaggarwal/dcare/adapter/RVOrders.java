@@ -37,14 +37,11 @@ public class RVOrders extends RecyclerView.Adapter<RVOrders.MyViewHolder> {
     JsonArray orderAcknowledged=new JsonArray();
     JsonArray orderTransit=new JsonArray();
     JsonArray orderOther=new JsonArray();
-    Boolean mapView=false;
 
 
-    public RVOrders(Activity context, JsonArray orderArray, boolean mapView) {
+    public RVOrders(Activity context, JsonArray orderArray) {
         this.context = context;
-//        this.orderArray = orderArray;
         sort(orderArray);
-        this.mapView=mapView;
     }
 
     private void sort(JsonArray orderArray) {
@@ -77,11 +74,12 @@ public class RVOrders extends RecyclerView.Adapter<RVOrders.MyViewHolder> {
         for(int i=0;i<orderTransitArray.size();i++){
             sortedArray.add(orderTransitArray.get(i));
         }
-        for(int i=0;i<orderOtherArray.size();i++){
-            sortedArray.add(orderOtherArray.get(i));
+        if(!Globals.mapView){
+            for(int i=0;i<orderOtherArray.size();i++){
+                sortedArray.add(orderOtherArray.get(i));
+            }
         }
         this.orderArray=sortedArray;
-
     }
 
     @Override
@@ -144,11 +142,10 @@ public class RVOrders extends RecyclerView.Adapter<RVOrders.MyViewHolder> {
             holder.item.setVisibility(View.GONE);
         }
 
-
         holder.accept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                doVisuallyFromTo(context,context,order_id,Globals.ORDERSTATE_CREW_AKNOLEDGED,order_code,position,mapView);
+                doVisuallyFromTo(context,context,order_id,Globals.ORDERSTATE_CREW_AKNOLEDGED,order_code,position,Globals.mapView);
                 Data.changeOrderState(context, order_id, String.valueOf(Globals.ORDERSTATE_CREW_AKNOLEDGED), new Data.UpdateCallback() {
                     @Override
                     public void onUpdate() {
@@ -164,7 +161,7 @@ public class RVOrders extends RecyclerView.Adapter<RVOrders.MyViewHolder> {
 
                     @Override
                     public void onFailure() {
-                        doVisuallyToFrom(context,context,order_id,Globals.ORDERSTATE_CREW_AKNOLEDGED,order_code,position,mapView);
+                        doVisuallyToFrom(context,context,order_id,Globals.ORDERSTATE_CREW_AKNOLEDGED,order_code,position,Globals.mapView);
                         Globals.showFailAlert(context, "Error accepting order!");
                     }
                 });
@@ -195,7 +192,7 @@ public class RVOrders extends RecyclerView.Adapter<RVOrders.MyViewHolder> {
                 holder.ordername.setTextColor(context.getResources().getColor(R.color.themeblue));
                 holder.line.setBackgroundColor(context.getResources().getColor(R.color.themeblue));
                 holder.ordercart.setVisibility(View.GONE);
-                if(!mapView){
+                if(!Globals.mapView){
                     OrderFragment.tripLayout.setVisibility(View.VISIBLE);
                 }
                 if (!(Prefs.getPrefs("orderJson", context)).equals("notfound")) {
@@ -204,8 +201,6 @@ public class RVOrders extends RecyclerView.Adapter<RVOrders.MyViewHolder> {
 
                     JsonArray orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
                     JsonObject orderObject = orderArray.get(position).getAsJsonObject().get("order").getAsJsonObject();
-                    String order_code = orderObject.get("order_last_state_code").getAsString();
-
                     orderObject.remove("order_last_state_code");
                     orderObject.addProperty("order_last_state_code", "7");
                     Prefs.setPrefs("orderJson", ob.toString(), context);
@@ -217,21 +212,21 @@ public class RVOrders extends RecyclerView.Adapter<RVOrders.MyViewHolder> {
         holder.cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                OrderAlerts.showDeclineOrderAlert(context,context,order_id,Globals.ORDERSTATE_UNASSIGNED,order_code,position,mapView);
+                OrderAlerts.showDeclineOrderAlert(context,context,order_id,Globals.ORDERSTATE_UNASSIGNED,order_code,position,Globals.mapView);
             }
         });
 
         holder.transitcancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                OrderAlerts.showDeclineOrderAlert(context,context,order_id,Globals.ORDERSTATE_UNASSIGNED,order_code,position,mapView);
+                OrderAlerts.showDeclineOrderAlert(context,context,order_id,Globals.ORDERSTATE_UNASSIGNED,order_code,position,Globals.mapView);
             }
         });
 
         holder.callcancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                OrderAlerts.showDeclineOrderAlert(context,context,order_id,Globals.ORDERSTATE_CREW_AKNOLEDGED,order_code,position,mapView);
+                OrderAlerts.showDeclineOrderAlert(context,context,order_id,Globals.ORDERSTATE_CREW_AKNOLEDGED,order_code,position,Globals.mapView);
             }
         });
 
@@ -288,7 +283,6 @@ public class RVOrders extends RecyclerView.Adapter<RVOrders.MyViewHolder> {
 
             JsonArray orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
             JsonObject orderObject = orderArray.get(position).getAsJsonObject().get("order").getAsJsonObject();
-            String order_code = orderObject.get("order_last_state_code").getAsString();
 
             orderObject.remove("order_last_state_code");
             orderObject.addProperty("order_last_state_code", String.valueOf(orderstateTo));
@@ -297,9 +291,9 @@ public class RVOrders extends RecyclerView.Adapter<RVOrders.MyViewHolder> {
             ob = jsonParser.parse(Prefs.getPrefs("orderJson", activity)).getAsJsonObject();
             orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
             if(!b){
-                OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray, false));
+                OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray));
             }else {
-                MapFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray, true));
+                MapFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray));
             }
         }
     }
@@ -311,7 +305,6 @@ public class RVOrders extends RecyclerView.Adapter<RVOrders.MyViewHolder> {
 
             JsonArray orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
             JsonObject orderObject = orderArray.get(position).getAsJsonObject().get("order").getAsJsonObject();
-            String order_code = orderObject.get("order_last_state_code").getAsString();
 
             orderObject.remove("order_last_state_code");
             orderObject.addProperty("order_last_state_code", String.valueOf(orderstateFrom));
@@ -320,9 +313,9 @@ public class RVOrders extends RecyclerView.Adapter<RVOrders.MyViewHolder> {
             ob = jsonParser.parse(Prefs.getPrefs("orderJson", activity)).getAsJsonObject();
             orderArray = ob.get("payload").getAsJsonObject().get("orders").getAsJsonObject().get("orders").getAsJsonArray();
             if(!b){
-                OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray, false));
+                OrderFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray));
             }else {
-                MapFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray, true));
+                MapFragment.recyclerView.setAdapter(new RVOrders(activity, orderArray));
             }
         }
     }

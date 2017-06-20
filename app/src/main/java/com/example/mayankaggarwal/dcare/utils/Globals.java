@@ -3,17 +3,10 @@ package com.example.mayankaggarwal.dcare.utils;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
-import android.view.View;
-import android.widget.TextView;
-
-import com.example.mayankaggarwal.dcare.R;
-import com.example.mayankaggarwal.dcare.activities.OtpActivity;
-import com.example.mayankaggarwal.dcare.rest.Data;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
@@ -34,7 +27,6 @@ public class Globals {
     public static int state_code_return_or_cancel_or_delivered = 9;
     public static String customerCare = "+918076792025";
     public static int orderFetch = 0;
-    public static int tripLayout = 0;
 
     public static String appVersion = "1.0.0";
     public static String appOS = "Android";
@@ -166,5 +158,11 @@ public class Globals {
     private static String getNullAsEmptyString(String s, JsonObject drop) {
         return drop.get(s).isJsonNull() ? "" : drop.get(s).getAsString();
     }
+
+
+    public  static PolylineOptions polylineOptions=null;
+
+    public  static Boolean mapView=false;
+
 
 }
